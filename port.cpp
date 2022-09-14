@@ -29,35 +29,24 @@ Port::Port( int p, int to ) {
 	}
 }
 
-Client Port::WaitForClient() {
+Client* Port::WaitForClient() {
 	int connection = accept( sockfd, ( struct sockaddr* )&sockaddr, ( socklen_t* )&addrlen );
 	if ( connection < 0 ) {
 		std::cout << "Failed to grab connection" << std::endl; 
 	} else {
 		std::cout << "Connected to " << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << std::endl;
-		Client client( connection, timeout );
+		Client* client = new Client( connection, timeout );
 		connections.push_back( client );
 		return client;
 	}
 }
 
-bool Port::GetUpdatedStates( StateMachine& states ) {
+bool Port::GetUpdatedStates() {
 	bool all = true;
 	for ( auto connection: connections ) {
-		if ( !connection.GetUpdatedStates( states ) )
+		if ( !connection->GetUpdatedStates() )
 			all = false;
 	}
 	return all;
 }
 
-bool Port::SendStates( StateMachine states ) {
-	bool all = true;
-	for ( auto connection: connections ) {
-		if ( !connection.SendStates( states ) )
-			all = false;
-	}
-
-	states.message = "";
-
-	return all;
-}

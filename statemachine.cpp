@@ -16,31 +16,34 @@ void StateMachine::Interpret( char* buffer ) {
 		std::string value( buffer, size );
 		buffer += value.size();
 
-		auto it = std::find( StateNames.begin(), StateNames.end(), name );
-		if ( it != StateNames.end() ) { 
-			StateValues[ it - StateNames.begin() ] = value;
-		}
-		else {
-			StateNames.push_back( name );
-			StateValues.push_back( value );
-		}
+		std::cout << name << ": " << ( int )*value.c_str() << std::endl;
+		SetState( name, value );
+
+	//	auto it = std::find( StateNames.begin(), StateNames.end(), name );
+	//	if ( it != StateNames.end() ) { 
+	//		StateValues[ it - StateNames.begin() ] = value;
+	//	}
+	//	else {
+	//		StateNames.push_back( name );
+	//		StateValues.push_back( value );
+	//	}
 	}
 }
 
 void StateMachine::SetState( std::string name, std::string value ) {
 	message += name;
 	message.push_back( '\0' );
+	message.push_back( value.size() );
 	message += value;
-	message.push_back( '\0' );
 
 	LocateState( name ).assign( value );
 }
 
-void StateMachine::SetState( std::string name, char* value ) {
+void StateMachine::SetState( std::string name, char* value, char size ) {
 	message += name;
 	message.push_back( '\0' );
-	message += value;
-	message.push_back( '\0' );
+	message.push_back( size );
+	message += std::string( value, size );
 
 	LocateState( name ).assign( value );
 }
@@ -60,4 +63,8 @@ const char* StateMachine::GetState( std::string name ) {
 }
 
 StateMachine::~StateMachine() {
+}
+
+void StateMachine::ClearMessage() {
+	message.clear();
 }

@@ -12,10 +12,12 @@ class StateMachine {
 
 	const char* GetState( std::string );
 	void SetState( std::string, std::string );
-	void SetState( std::string, char* );
+	void SetState( std::string, char*, char );
 
 	void Interpret( char* buffer );
 	void ReadSocket();
+
+	void ClearMessage();
 
 	std::string message;
 

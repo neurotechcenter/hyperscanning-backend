@@ -6,12 +6,13 @@ class Client {
 	public:
 	Client( int, int );
 
-	bool GetUpdatedStates( StateMachine& );
+	bool GetUpdatedStates();
 	bool SendStates( StateMachine );
 
+	StateMachine states;
+	int connection;
 	private:
 	int timeout;
-	int connection;
 	sockaddr_in sockaddr;
 
 	std::vector<int> connections;
@@ -20,4 +21,5 @@ class Client {
 
 	int addrlen = sizeof( sockaddr );
 	int bufferSize = 1025;
+
 };

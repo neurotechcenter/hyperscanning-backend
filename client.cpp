@@ -12,7 +12,7 @@ Client::Client( int sock, int to ) {
 	timeout = to;
 }
 
-bool Client::GetUpdatedStates( StateMachine& states ) {
+bool Client::GetUpdatedStates() {
 	struct timeval time;
 	time.tv_sec = 0;
 	time.tv_usec = timeout;
@@ -22,10 +22,13 @@ bool Client::GetUpdatedStates( StateMachine& states ) {
 
 	while ( select( connection + 1, &readfds, NULL, NULL, NULL ) > 0 ) {
 		char* buffer = ( char* ) malloc( bufferSize * sizeof( char ) );
-		if ( read( connection, buffer, bufferSize ) == 0 ) {
+		size_t result = read( connection, buffer, bufferSize );
+		if ( result == 0 ) {
 			std::cout << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << " disconnected" << std::endl;
 			close( connection );
 			connection = 0;
+		} else if ( result < 0 ) {
+			std::cout << "Error reading socket: " << errno << std::endl;
 		} else {
 			states.Interpret( buffer );
 		}
@@ -35,9 +38,9 @@ bool Client::GetUpdatedStates( StateMachine& states ) {
 	return false;
 }
 
-bool Client::SendStates( StateMachine states ) {
-	states.message = "hi";
-	send( connection, ( void * ) states.message.c_str(), states.message.size(), 0 );
+bool Client::SendStates( StateMachine otherStates ) {
+	if ( send( connection, otherStates.message.c_str(), otherStates.message.size() + 1, 0 ) < 0 )
+		std::cout << "Error writing to socket: " << errno << std::endl;
 }
 
 //void StateMachine::ReadSocket() {

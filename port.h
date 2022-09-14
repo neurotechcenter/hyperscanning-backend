@@ -7,12 +7,11 @@ class Port {
 	public: 
 	Port( int, int );
 
-	Client WaitForClient();
-	bool GetUpdatedStates( StateMachine& );
-	bool SendStates( StateMachine );
+	Client* WaitForClient();
+	bool GetUpdatedStates();
 
 	private:
-	std::vector<Client> connections;
+	std::vector<Client*> connections;
 
 	int sockfd;
 	sockaddr_in sockaddr;
