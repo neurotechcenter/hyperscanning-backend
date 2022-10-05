@@ -4,6 +4,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <fstream>
 
 int main() {
 	Port port( 1234, 100 );
@@ -17,12 +18,18 @@ int main() {
 	Client* client2 = port.WaitForClient();
 	std::cout << "Connected to second client" << std::endl;
 
-	//Greeting Messages
+	Greeting Messages
 	std::cout << "Sending Greeting" << std::endl;
 	std::string greeting( "Hello from the server!" );
 	std::cout << "Greeting: " << greeting.c_str() << ", "  << greeting.size() << std::endl;
 	send( client1->connection, greeting.c_str(), greeting.size(), 0 );
 	send( client2->connection, greeting.c_str(), greeting.size(), 0 );
+
+	std::string param_file( "HyperscanningParameters.prm" );
+	std::fstream file( param_file );
+	std::string contents( std::istreambuf_iterator<char>( file ), ( std::istreambuf_iterator<char>() ) );
+	send( client1->connection, contents.c_str(), contents.size(), 0 );
+	send( client2->connection, contents.c_str(), contents.size(), 0 );
 
 	char n = 0;
 
