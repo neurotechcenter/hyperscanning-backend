@@ -18,7 +18,7 @@ int main() {
 	Client* client2 = port.WaitForClient();
 	std::cout << "Connected to second client" << std::endl;
 
-	Greeting Messages
+	//Greeting Messages
 	std::cout << "Sending Greeting" << std::endl;
 	std::string greeting( "Hello from the server!" );
 	std::cout << "Greeting: " << greeting.c_str() << ", "  << greeting.size() << std::endl;
@@ -30,6 +30,9 @@ int main() {
 	std::string contents( std::istreambuf_iterator<char>( file ), ( std::istreambuf_iterator<char>() ) );
 	send( client1->connection, contents.c_str(), contents.size(), 0 );
 	send( client2->connection, contents.c_str(), contents.size(), 0 );
+
+	client1->states.SetState( "ClientNumber", ( char ) 0 );
+	client2->states.SetState( "ClientNumber", ( char ) 1 );
 
 	char n = 0;
 
