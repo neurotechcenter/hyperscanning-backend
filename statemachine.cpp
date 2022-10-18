@@ -8,6 +8,28 @@
 StateMachine::StateMachine() {
 }
 
+void StateMachine::Interpret( const char* buffer ) {
+	while ( *buffer != '\0' ) {
+		std::string name( buffer );
+		buffer += name.size() + 1;
+		char size = *buffer++;
+		std::string value( buffer, size );
+		buffer += value.size();
+
+		std::cout << name << ": " << ( int )*value.c_str() << std::endl;
+		SetState( name, value );
+
+	//	auto it = std::find( StateNames.begin(), StateNames.end(), name );
+	//	if ( it != StateNames.end() ) { 
+	//		StateValues[ it - StateNames.begin() ] = value;
+	//	}
+	//	else {
+	//		StateNames.push_back( name );
+	//		StateValues.push_back( value );
+	//	}
+	}
+}
+
 void StateMachine::Interpret( char* buffer ) {
 	while ( *buffer != '\0' ) {
 		std::string name( buffer );

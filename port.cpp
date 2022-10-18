@@ -41,6 +41,20 @@ Client* Port::WaitForClient() {
 	}
 }
 
+Client* Port::CheckForClient() {
+	fd_set fds;
+	FD_ZERO( &fds );
+	FD_SET( sockfd, &fds );
+
+	struct timeval to = { 0, 0 };
+
+	select( sockfd, &fds, NULL, NULL, &to );
+
+	if ( FD_ISSET( sockfd, &fds ) != 0 )
+		return WaitForClient();
+	return nullptr;
+}
+
 bool Port::GetUpdatedStates() {
 	bool all = true;
 	for ( auto connection: connections ) {
@@ -49,4 +63,5 @@ bool Port::GetUpdatedStates() {
 	}
 	return all;
 }
+
 

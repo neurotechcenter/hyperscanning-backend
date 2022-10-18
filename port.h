@@ -9,6 +9,7 @@ class Port {
 
 	Client* WaitForClient();
 	bool GetUpdatedStates();
+	Client* CheckForClient();
 
 	private:
 	std::vector<Client*> connections;

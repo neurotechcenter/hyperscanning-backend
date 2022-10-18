@@ -14,6 +14,7 @@ class StateMachine {
 	void SetState( std::string, std::string );
 	void SetState( std::string, char*, char );
 
+	void Interpret( const char* buffer );
 	void Interpret( char* buffer );
 	void ReadSocket();
 

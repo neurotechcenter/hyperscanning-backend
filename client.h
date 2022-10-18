@@ -11,6 +11,7 @@ class Client {
 
 	StateMachine states;
 	int connection;
+	char ClientNumber;
 	private:
 	int timeout;
 	sockaddr_in sockaddr;
