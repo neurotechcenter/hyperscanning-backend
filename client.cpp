@@ -39,7 +39,8 @@ bool Client::GetUpdatedStates() {
 }
 
 bool Client::SendStates( StateMachine otherStates ) {
-	if ( send( connection, otherStates.message.c_str(), otherStates.message.size() + 1, 0 ) < 0 )
+	size_t size = otherStates.message.size() + 1;
+	if ( send( connection, &size, sizeof( size_t ), 0 ) < 0 || send( connection, otherStates.message.c_str(), size, 0 ) < 0 )
 		std::cout << "Error writing to socket: " << errno << std::endl;
 }
 

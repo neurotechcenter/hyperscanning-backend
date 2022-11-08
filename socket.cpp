@@ -1,7 +1,7 @@
 #include "socket.h"
 
 Socket::Socket() {
-	sockfd = socket( AF_INET, SOCK_STREAM, 0 );
+	sockfd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 	if ( sockfd == -1 ) {
 		std::cout << "Failed to create socket. errno: " << errno << std::endl;
 		return -1;

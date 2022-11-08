@@ -11,13 +11,18 @@ StateMachine::StateMachine() {
 void StateMachine::Interpret( const char* buffer ) {
 	while ( *buffer != '\0' ) {
 		std::string name( buffer );
+		bool readonly = false;
 		buffer += name.size() + 1;
+		if ( name[ 0 ] == 0 ) {
+			readonly = true;
+			name.erase( name.begin() );
+		}
 		char size = *buffer++;
 		std::string value( buffer, size );
 		buffer += value.size();
 
 		std::cout << name << ": " << ( int )*value.c_str() << std::endl;
-		SetState( name, value );
+		SetState( name, value, readonly );
 
 	//	auto it = std::find( StateNames.begin(), StateNames.end(), name );
 	//	if ( it != StateNames.end() ) { 
@@ -57,6 +62,17 @@ void StateMachine::SetState( std::string name, std::string value ) {
 	message.push_back( '\0' );
 	message.push_back( value.size() );
 	message += value;
+
+	LocateState( name ).assign( value );
+}
+
+void StateMachine::SetState( std::string name, std::string value, bool readonly ) {
+	if ( !readonly ) {
+		message += name;
+		message.push_back( '\0' );
+		message.push_back( value.size() );
+		message += value;
+	}
 
 	LocateState( name ).assign( value );
 }

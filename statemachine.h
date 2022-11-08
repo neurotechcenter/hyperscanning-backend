@@ -12,6 +12,7 @@ class StateMachine {
 
 	const char* GetState( std::string );
 	void SetState( std::string, std::string );
+	void SetState( std::string, std::string, bool );
 	void SetState( std::string, char*, char );
 
 	void Interpret( const char* buffer );

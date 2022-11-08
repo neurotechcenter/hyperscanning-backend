@@ -7,6 +7,8 @@
 #include <fstream>
 
 void connect_client( Client* client, std::string params, char n ) {
+	size_t size = params.size();
+	send( client->connection, &size, sizeof( params.size() ), 0 );
 	send( client->connection, params.c_str(), params.size(), 0 );
 	client->ClientNumber = n;
 	std::string s = "ClientNumber";
@@ -30,7 +32,7 @@ class Game {
 	}
 
 	void Update() {
-		std::cout << "Getting updated states..." << std::endl;
+//		std::cout << "Getting updated states..." << std::endl;
 		each_client client->GetUpdatedStates();
 
 		masterStates.message.clear();
@@ -42,8 +44,10 @@ class Game {
 			client->states.message.clear();
 		}
 
-		std::cout << "Sending updated states..." << std::endl;
+//		std::cout << "Sending updated states..." << std::endl;
 		each_client client->SendStates( masterStates );
+
+		std::cout << "Color: " << ( int ) *masterStates.GetState( "Color" ) << std::endl;
 	}
 };
 
@@ -51,8 +55,11 @@ int main() {
 	std::string param_file( "HyperscanningParameters.prm" );
 	std::fstream file( param_file );
 	std::string contents( std::istreambuf_iterator<char>( file ), ( std::istreambuf_iterator<char>() ) );
+	std::cout << "Initial Size: " << contents.size() << std::endl;
 	contents.push_back( 0 );
-	contents += std::string( 1025 - ( contents.size() % 1025 ), 0 );
+	//contents += std::string( 1025 - ( contents.size() % 1025 ), 0 );
+
+	std::cout << "First zero: " << contents.find_first_of( ( char )0 ) << std::endl;
 
 	std::cout << "Size: " << contents.size() << std::endl;
 
