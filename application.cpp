@@ -32,19 +32,21 @@ class Game {
 	}
 
 	void Update() {
-//		std::cout << "Getting updated states..." << std::endl;
+		std::cout << "Getting updated states..." << std::endl;
 		each_client client->GetUpdatedStates();
 
 		masterStates.message.clear();
+		int i = 0;
 		each_client {
-			std::cout << "Message: " << std::endl;
-			std::cout << client->states.message << std::endl;
+			std::cout << "Updating client " << i++ << "'s states..." << std::endl;
+			//std::cout << "Message: " << std::endl;
+			//std::cout << client->states.message << std::endl;
 			client->states.message.push_back( 0 );
 			masterStates.Interpret( client->states.message.c_str() );
 			client->states.message.clear();
 		}
 
-//		std::cout << "Sending updated states..." << std::endl;
+		std::cout << "Sending updated states..." << std::endl;
 		each_client client->SendStates( masterStates );
 
 		std::cout << "Color: " << ( int ) *masterStates.GetState( "Color" ) << std::endl;
