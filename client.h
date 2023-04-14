@@ -4,17 +4,22 @@
 
 class Client {
 	public:
-	Client( int, int );
+	Client( int, int, std::string, int );
 
 	bool GetUpdatedStates();
 	bool SendStates( StateMachine );
 
+	std::string ip_address;
+	int port;
+
 	StateMachine states;
 	int connection;
 	char ClientNumber;
+
 	private:
 	int timeout;
 	sockaddr_in sockaddr;
+
 
 	std::vector<int> connections;
 	int max_fd;

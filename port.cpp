@@ -35,7 +35,7 @@ Client* Port::WaitForClient() {
 		std::cout << "Failed to grab connection" << std::endl; 
 	} else {
 		std::cout << "Connected to " << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << std::endl;
-		Client* client = new Client( connection, timeout );
+		Client* client = new Client( connection, timeout, inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ) );
 		connections.push_back( client );
 		return client;
 	}

@@ -7,9 +7,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-Client::Client( int sock, int to ) {
+Client::Client( int sock, int to, std::string ip, int p ) {
 	connection = sock;
 	timeout = to;
+	ip_address = ip;
+	port = p;
 }
 
 bool Client::GetUpdatedStates() {
@@ -27,6 +29,7 @@ bool Client::GetUpdatedStates() {
 			std::cout << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << " disconnected" << std::endl;
 			close( connection );
 			connection = 0;
+			return false;
 		} else if ( result < 0 ) {
 			std::cout << "Error reading socket: " << errno << std::endl;
 		} else {
@@ -40,8 +43,12 @@ bool Client::GetUpdatedStates() {
 
 bool Client::SendStates( StateMachine otherStates ) {
 	size_t size = otherStates.message.size() + 1;
-	if ( send( connection, &size, sizeof( size_t ), 0 ) < 0 || send( connection, otherStates.message.c_str(), size, 0 ) < 0 )
+	std::cout << "size: " << size << std::endl;
+	if ( send( connection, &size, sizeof( size_t ), MSG_NOSIGNAL ) < 0 || send( connection, otherStates.message.c_str(), size, MSG_NOSIGNAL ) < 0 ) {
 		std::cout << "Error writing to socket: " << errno << std::endl;
+		return false;
+	}
+	return true;
 }
 
 //void StateMachine::ReadSocket() {

@@ -60,33 +60,42 @@ void StateMachine::Interpret( char* buffer ) {
 }
 
 void StateMachine::SetState( std::string name, std::string value ) {
-	message += name;
-	message.push_back( '\0' );
-	message.push_back( value.size() );
-	message += value;
-
-	LocateState( name ).assign( value );
-}
-
-void StateMachine::SetState( std::string name, std::string value, bool readonly ) {
-	if ( !readonly ) {
+	auto state = LocateState( name );
+	if ( value != state ) {
 		message += name;
 		message.push_back( '\0' );
 		message.push_back( value.size() );
 		message += value;
 	}
 
-	LocateState( name ).assign( value );
+	state.assign( value );
 }
 
-void StateMachine::SetState( std::string name, char* value, char size ) {
-	message += name;
-	message.push_back( '\0' );
-	message.push_back( size );
-	message += std::string( value, size );
-
-	LocateState( name ).assign( value );
-}
+//void StateMachine::SetState( std::string name, std::string value, bool readonly ) {
+//	auto state = LocateState( name );
+//	if ( !readonly ) {
+//		if ( value != state ) {
+//			message += name;
+//			message.push_back( '\0' );
+//			message.push_back( value.size() );
+//			message += value;
+//		}
+//	}
+//
+//	state.assign( value );
+//}
+//
+//void StateMachine::SetState( std::string name, char* value, char size ) {
+//	auto state = LocateState( name );
+//	if ( value != state ) {
+//		message += name;
+//		message.push_back( '\0' );
+//		message.push_back( size );
+//		message += std::string( value, size );
+//	}
+//
+//	state.assign( value );
+//}
 
 std::string& StateMachine::LocateState( std::string name ) {
 	auto it = std::find( StateNames.begin(), StateNames.end(), name );
