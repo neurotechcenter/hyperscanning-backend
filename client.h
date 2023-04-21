@@ -3,6 +3,8 @@
 #include "statemachine.h"
 
 class Client {
+	#define MSG_NOSIGNAL 0
+	
 	public:
 	Client( int, int, std::string, int );
 

@@ -25,6 +25,7 @@ void connect_client( Client* client, std::string params, char n ) {
 class Game {
 	public:
 	Game( Port p, std::string ps ) : port( p ), params( ps ) {
+		signal( SIGPIPE, SIG_IGN );
 	}
 
 	Port port;
