@@ -51,63 +51,6 @@ bool Client::SendStates( StateMachine otherStates ) {
 	return true;
 }
 
-//void StateMachine::ReadSocket() {
-//	struct timeval time;
-//	time.tv_sec = 0;
-//	time.tv_usec = 0;
-//
-//	FD_ZERO( &readfds );
-//	FD_SET( sockfd, &readfds );
-//
-//	max_fd = sockfd;
-//
-//	for ( int connection : connections ) {
-//		FD_SET( connection, &readfds );
-//		if ( connection > max_fd )
-//			max_fd = connection;
-//	}
-//
-//	while ( select( max_fd + 1, &readfds, NULL, NULL, &time ) > 0 ) {
-//		if ( FD_ISSET( sockfd, &readfds ) ) {
-//			std::cout << "New connection..." << std::endl;
-//
-//			int connection = accept( sockfd, ( struct sockaddr* )&sockaddr, ( socklen_t* )&addrlen );
-//			if ( connection < 0 ) {
-//				std::cout << "Failed to grab connection" << std::endl;
-//			} else {
-//				std::cout << "Connected to " << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << std::endl;
-//				connections.push_back( connection );
-//			}
-//		}
-//
-//		for ( int connection : connections ) {
-//			if ( FD_ISSET( connection, &readfds ) ) {
-//				char* buffer = ( char* ) malloc( bufferSize * sizeof( char ) );
-//				if ( read( connection, buffer, bufferSize ) == 0 ) {
-//					getpeername( connection, ( struct sockaddr* )&sockaddr, ( socklen_t* )&addrlen );
-//					std::cout << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << " disconnected" << std::endl;
-//					close( connection );
-//					connection = 0;
-//				} else {
-//					Interpret( buffer );
-//					free( buffer );
-//				}
-//			}
-//		}
-//
-//		time.tv_sec = 0;
-//		time.tv_usec = 0;
-//
-//		FD_ZERO( &readfds );
-//		FD_SET( sockfd, &readfds );
-//
-//		max_fd = sockfd;
-//
-//		for ( int connection : connections ) {
-//			FD_SET( connection, &readfds );
-//			if ( connection > max_fd )
-//				max_fd = connection;
-//		}
-//	}
-//}
-//
+bool Client::Matches( Client* o ) {
+	return ( ip_address == o->ip_address && port == o->port );
+}
