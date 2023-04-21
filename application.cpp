@@ -99,9 +99,10 @@ int main() {
 	std::cout << "Connected to first client" << std::endl;
 
 	std::cout << "Waiting for second client" << std::endl;
-	Client* client2 = port.WaitForClient();
+	//Client* client2 = port.WaitForClient();
 	//connect_client( client2, contents, 1 );
-	games[ 0 ].Connect( client2 );
+	while ( !games[ 0 ].Connect( port.WaitForClient() ) );
+
 	std::cout << "Connected to second client" << std::endl;
 
 	auto time = std::chrono::system_clock::now();

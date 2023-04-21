@@ -18,6 +18,8 @@ class Client {
 	int connection;
 	char ClientNumber;
 
+	bool Matches( Client* o );
+
 	private:
 	int timeout;
 	sockaddr_in sockaddr;
