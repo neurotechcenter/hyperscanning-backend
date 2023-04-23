@@ -10,9 +10,7 @@
 
 class Game {
 	public:
-	Game( Port p, std::string ps ) : port( p ), params( ps ) {
-		signal( SIGPIPE, SIG_IGN );
-	}
+	Game( Port p, std::string ps ) : port( p ), params( ps );
 
 	Port port;
 	std::string params;

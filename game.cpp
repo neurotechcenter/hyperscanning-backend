@@ -24,6 +24,7 @@ void connect_client( Client* client, std::string params, char n ) {
 
 
 Game::Game( Port p, std::string ps ) : port( p ), params( ps ) {
+	signal( SIGPIPE, SIG_IGN );
 }
 
 
