@@ -10,7 +10,7 @@
 
 class Game {
 	public:
-	Game( Port p, std::string ps ) : port( p ), params( ps );
+	Game( Port p, std::string ps );
 
 	Port port;
 	std::string params;
