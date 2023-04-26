@@ -52,7 +52,7 @@ int main() {
 	else {
 		// Generate Random Sequence
 		size_t param = contents.find( "StimuliMatrix" );
-		param = contents.find( "}", param );
+		param = contents.find( "}", param ) + 2;
 		size_t size = contents.find( " ", param ) - param;
 		std::string lenstr = contents.substr( param, size );
 		int len = std::stoi( lenstr );
@@ -72,7 +72,7 @@ int main() {
 			stimuliSequence += std::to_string( order[ i ] );
 			stimuliSequence += " ";
 		}
-		stimuliSequence += " % % % //Random Stimuli Sequence";
+		stimuliSequence += "% % % //Random Stimuli Sequence";
 		contents += stimuliSequence;
 		contents.push_back( '\n' );
 		contents += "Application int InitialTrialNumber= 0 % % % // trial number";
