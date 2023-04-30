@@ -3,7 +3,7 @@ LIBS =
 LIBDIRS = 
 INC = 
 
-OBJ = port.o client.o statemachine.o game.o
+OBJ = port.o client.o statemachine.o game.o params.o
 
 %.o : %.cpp
 	$(CC) -c $(LIBS) $(LIBDIRS) $(INC) $< -o $@
