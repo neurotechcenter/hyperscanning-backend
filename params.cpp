@@ -16,8 +16,9 @@ Param* Params::GetParam( std::string name ) {
 	size_t p = contents.find( name + '=' );
 	if ( p == std::string::npos ) return nullptr;
 	size_t end = contents.find( '\n', p );
+	size_t begin = contents.rfind( '\n', p ) + 1;
 
-	std::string line = contents.substr( p, end - p );
+	std::string line = contents.substr( begin, end - begin );
 
 	size_t s = contents.find( ' ', p );
 

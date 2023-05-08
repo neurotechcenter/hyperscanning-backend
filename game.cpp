@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <fstream>
+#include <signal.h>
 
 
 void connect_client( Client* client, std::string params, char n ) {

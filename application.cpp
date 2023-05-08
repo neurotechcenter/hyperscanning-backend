@@ -73,8 +73,6 @@ int main() {
 
 	params.contents.push_back( 0 );
 
-	std::cout << "Size: " << params.contents.size() << std::endl;
-
 	Port port( 1234, 100 );
 	std::cout << "Connected to port " << 1234 << std::endl;
 
@@ -102,7 +100,9 @@ int main() {
 	StateMachine out_states = games[ 0 ].Loop();
 
 	std::ofstream egof( "ExistingGame.prm" );
-	std::string InitialTrialNumber = out_states.GetState( "trialNum" );
+	std::string InitialTrialNumber = out_states.GetState( "TrialNumber" );
+	if ( InitialTrialNumber.size() == 0 ) InitialTrialNumber = "0";
+	std::cout << "Saving Trial Number: " << InitialTrialNumber << std::endl;
 	egof << "Application int InitialTrialNumber= " << InitialTrialNumber << " % % % // trial number" << std::endl;
 	egof << stimuliSequence << std::endl;
 	std::cout << "All done!" << std::endl;
