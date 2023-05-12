@@ -8,7 +8,6 @@ class Port {
 	Port( int, int );
 
 	Client* WaitForClient();
-	bool GetUpdatedStates();
 	Client* CheckForClient();
 
 	private:

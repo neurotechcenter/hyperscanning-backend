@@ -8,9 +8,10 @@
 StateMachine::StateMachine() {
 }
 
-void StateMachine::Interpret( const char* buffer ) {
+void StateMachine::Interpret( const char* buffer, StateMachine* tracker = nullptr ) {
+
 	while ( *buffer != '\0' ) {
-		std::cout << "Getting state name" << std::endl;
+		//std::cout << "Getting state name" << std::endl;
 		std::string name( buffer );
 		//bool readonly = false;
 		buffer += name.size() + 1;
@@ -19,56 +20,37 @@ void StateMachine::Interpret( const char* buffer ) {
 		//	name.erase( name.begin() );
 		//}
 		char size = *buffer++;
-		std::cout << "Interpreting value" << std::endl;
+		//std::cout << "Interpreting value" << std::endl;
 		std::string value( buffer, size );
 		buffer += value.size();
 
 		std::cout << "Setting State: " << name << ": " << ( int )*value.c_str() << std::endl;
-		SetState( name, value );//, readonly );
 
-	//	auto it = std::find( StateNames.begin(), StateNames.end(), name );
-	//	if ( it != StateNames.end() ) { 
-	//		StateValues[ it - StateNames.begin() ] = value;
-	//	}
-	//	else {
-	//		StateNames.push_back( name );
-	//		StateValues.push_back( value );
-	//	}
+		//, readonly );
+		if ( !SetState( name, value ) && tracker ){
+			std::cout << "Updating tracker from: " << ( int ) *tracker->GetState( name ) << " to: " << ( int ) *value.c_str() << std::endl;
+			tracker->SetState( name, value );
+		}
 	}
 }
 
-void StateMachine::Interpret( char* buffer ) {
-	while ( *buffer != '\0' ) {
-		std::string name( buffer );
-		buffer += name.size() + 1;
-		char size = *buffer++;
-		std::string value( buffer, size );
-		buffer += value.size();
 
-		std::cout << name << ": " << ( int )*value.c_str() << std::endl;
-		SetState( name, value );
-
-	//	auto it = std::find( StateNames.begin(), StateNames.end(), name );
-	//	if ( it != StateNames.end() ) { 
-	//		StateValues[ it - StateNames.begin() ] = value;
-	//	}
-	//	else {
-	//		StateNames.push_back( name );
-	//		StateValues.push_back( value );
-	//	}
+std::string StateMachine::GetMessage() {
+	std::string out;
+	for ( int i = 0; i < StateNames.size(); i++ ) {
+		out += StateNames[ i ];
+		out += '\0';
+		out += StateValues[ i ].size();
+		out += StateValues[ i ];
 	}
+	return out;
 }
 
-void StateMachine::SetState( std::string name, std::string value ) {
-	auto state = LocateState( name );
-	if ( value != state ) {
-		message += name;
-		message.push_back( '\0' );
-		message.push_back( value.size() );
-		message += value;
-	}
-
+bool StateMachine::SetState( std::string name, std::string value ) {
+	std::string& state = LocateState( name );
+	std::string previous = state;
 	state.assign( value );
+	return previous == state;
 }
 
 //void StateMachine::SetState( std::string name, std::string value, bool readonly ) {

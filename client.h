@@ -14,9 +14,11 @@ class Client {
 	std::string ip_address;
 	int port;
 
-	StateMachine states;
 	int connection;
 	char ClientNumber;
+
+	StateMachine* states;
+	StateMachine* stateChanges;
 
 	bool Matches( Client* o );
 

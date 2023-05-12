@@ -11,13 +11,15 @@ class StateMachine {
 	~StateMachine();
 
 	const char* GetState( std::string );
-	void SetState( std::string, std::string );
+	bool SetState( std::string, std::string );
 //	void SetState( std::string, std::string, bool );
 //	void SetState( std::string, char*, char );
 
-	void Interpret( const char* buffer );
-	void Interpret( char* buffer );
+	void Interpret( const char* buffer, StateMachine* );
+	//void Interpret( char* buffer );
 	void ReadSocket();
+
+	std::string GetMessage();
 
 	void ClearMessage();
 
@@ -25,6 +27,9 @@ class StateMachine {
 
 	std::vector<std::string> StateNames;
 	std::vector<std::string> StateValues;
+
+	std::vector<std::string> ChangedStates;
+	std::vector<std::string> ChangedValue;
 
 	private:
 

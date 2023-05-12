@@ -101,9 +101,10 @@ int main() {
 
 	std::ofstream egof( "ExistingGame.prm" );
 	std::string InitialTrialNumber = out_states.GetState( "TrialNumber" );
-	if ( InitialTrialNumber.size() == 0 ) InitialTrialNumber = "0";
-	std::cout << "Saving Trial Number: " << InitialTrialNumber << std::endl;
-	egof << "Application int InitialTrialNumber= " << InitialTrialNumber << " % % % // trial number" << std::endl;
+	std::cout << "Trial Number: " << InitialTrialNumber << std::endl;
+	if ( InitialTrialNumber.size() == 0 ) InitialTrialNumber = "\0";
+	std::cout << "Saving Trial Number: " << ( int ) *InitialTrialNumber.c_str() << std::endl;
+	egof << "Application int InitialTrialNumber= " << ( int )*InitialTrialNumber.c_str() << " % % % // trial number" << std::endl;
 	egof << stimuliSequence << std::endl;
 	std::cout << "All done!" << std::endl;
 }

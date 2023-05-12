@@ -12,6 +12,8 @@ Client::Client( int sock, int to, std::string ip, int p ) {
 	timeout = to;
 	ip_address = ip;
 	port = p;
+	states = new StateMachine();
+	stateChanges = new StateMachine();
 }
 
 bool Client::GetUpdatedStates() {
@@ -33,7 +35,7 @@ bool Client::GetUpdatedStates() {
 		} else if ( result < 0 ) {
 			std::cout << "Error reading socket: " << errno << std::endl;
 		} else {
-			states.Interpret( buffer );
+			states->Interpret( buffer, stateChanges );
 		}
 		free( buffer );
 		return true;
@@ -42,9 +44,9 @@ bool Client::GetUpdatedStates() {
 }
 
 bool Client::SendStates( StateMachine otherStates ) {
-	size_t size = otherStates.message.size() + 1;
-	std::cout << "size: " << size << std::endl;
-	if ( send( connection, &size, sizeof( size_t ), MSG_NOSIGNAL ) < 0 || send( connection, otherStates.message.c_str(), size, MSG_NOSIGNAL ) < 0 ) {
+	std::string message = otherStates.GetMessage();
+	size_t size = message.size() + 1;
+	if ( send( connection, &size, sizeof( size_t ), MSG_NOSIGNAL ) < 0 || send( connection, message.c_str(), size, MSG_NOSIGNAL ) < 0 ) {
 		std::cout << "Error writing to socket: " << errno << std::endl;
 		return false;
 	}

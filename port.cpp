@@ -55,13 +55,3 @@ Client* Port::CheckForClient() {
 	return nullptr;
 }
 
-bool Port::GetUpdatedStates() {
-	bool all = true;
-	for ( auto connection: connections ) {
-		if ( !connection->GetUpdatedStates() )
-			all = false;
-	}
-	return all;
-}
-
-
