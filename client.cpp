@@ -19,7 +19,7 @@ Client::Client( int sock, int to, std::string ip, int p ) {
 bool Client::GetUpdatedStates() {
 	struct timeval time;
 	time.tv_sec = 0;
-	time.tv_usec = 0;
+	time.tv_usec = 2000;
 
 	FD_ZERO( &readfds );
 	FD_SET( connection, &readfds );
