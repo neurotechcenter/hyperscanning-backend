@@ -2,6 +2,7 @@
 
 Socket::Socket() {
 	sockfd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+	int flag = 1;
 	if ( sockfd == -1 ) {
 		std::cout << "Failed to create socket. errno: " << errno << std::endl;
 		return -1;

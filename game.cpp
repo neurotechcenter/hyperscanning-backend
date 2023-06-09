@@ -59,30 +59,53 @@ StateMachine Game::Loop() {
 
 bool Game::Update() {
 	StateMachine* tracker = new StateMachine();
-	//std::cout << "Getting updated states..." << std::endl;
+	bool sent = false;
+	//std::string fake;
 	each_client {
+		auto begin = std::chrono::system_clock::now();
 		client->stateChanges = new StateMachine();
 		if ( !client->GetUpdatedStates() ) return false;
 		std::string message = client->stateChanges->GetMessage();
 		if ( message.size() > 0 ) {
+			sent = true;
+		//	//fake = "on";
+		//	//fake += ( char )0;
+		//	//fake += ( char )1;
+		//	//fake += ( char )0;
 			std::cout << "Client Sent: " << std::endl;
 			print_string( message );
-		}
+			auto end = std::chrono::system_clock::now();
+			std::cout << "Read Time (s): " << ( ( std::chrono::duration<double> )( end - begin ) ).count() << std::endl;
+		} //else {
+		//	fake = "";
+		//}
+		//
 	}
 
+
 	each_client {
+		auto begin = std::chrono::system_clock::now();
 		masterStates.Interpret( client->stateChanges->GetMessage().c_str(), tracker );
+		auto end = std::chrono::system_clock::now();
+		if ( sent )
+			std::cout << "Interpret Time (s): " << ( ( std::chrono::duration<double> )( end - begin ) ).count() << std::endl;
 	}
 
+	//masterStates.Interpret( fake.c_str(), tracker );
+
 	each_client {
+		auto begin = std::chrono::system_clock::now();
 		client->stateChanges = new StateMachine();
 		client->states->Interpret( tracker->GetMessage().c_str(), client->stateChanges );
 		std::string message = client->stateChanges->GetMessage();
-		if ( message.size() > 0 ) {
-			std::cout << "Server Sending: " << std::endl;
-			print_string( message );
-		}
+		//if ( message.size() > 0 ) {
+		//	std::cout << "Server Sending: " << std::endl;
+		//	print_string( message );
+		//}
 		if ( !client->SendStates( *client->stateChanges ) ) return false;
+		auto end = std::chrono::system_clock::now();
+		if ( sent )
+			std::cout << "Write Time (s): " << ( ( std::chrono::duration<double> )( end - begin ) ).count() << std::endl;
 	}
 
 	//each_client {

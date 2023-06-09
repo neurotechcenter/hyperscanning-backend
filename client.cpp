@@ -19,12 +19,12 @@ Client::Client( int sock, int to, std::string ip, int p ) {
 bool Client::GetUpdatedStates() {
 	struct timeval time;
 	time.tv_sec = 0;
-	time.tv_usec = timeout;
+	time.tv_usec = 0;
 
 	FD_ZERO( &readfds );
 	FD_SET( connection, &readfds );
 
-	while ( select( connection + 1, &readfds, NULL, NULL, NULL ) > 0 ) {
+	if ( select( connection + 1, &readfds, NULL, NULL, &time ) > 0 ) {
 		char* buffer = ( char* ) malloc( bufferSize * sizeof( char ) );
 		size_t result = read( connection, buffer, bufferSize );
 		if ( result == 0 ) {
@@ -35,17 +35,20 @@ bool Client::GetUpdatedStates() {
 		} else if ( result < 0 ) {
 			std::cout << "Error reading socket: " << errno << std::endl;
 		} else {
+			std::cout << "Reading socket" << std::endl;
 			states->Interpret( buffer, stateChanges );
 		}
 		free( buffer );
 		return true;
 	}
-	return false;
+	return true;
 }
 
 bool Client::SendStates( StateMachine otherStates ) {
 	std::string message = otherStates.GetMessage();
+	if ( message.size() == 0 ) return true;
 	size_t size = message.size() + 1;
+	std::cout << "Size: " << message.size() << std::endl;
 	if ( send( connection, &size, sizeof( size_t ), MSG_NOSIGNAL ) < 0 || send( connection, message.c_str(), size, MSG_NOSIGNAL ) < 0 ) {
 		std::cout << "Error writing to socket: " << errno << std::endl;
 		return false;

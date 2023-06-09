@@ -42,6 +42,8 @@ std::string StateMachine::GetMessage() {
 		out += '\0';
 		out += StateValues[ i ].size();
 		out += StateValues[ i ];
+
+		std::cout << StateNames[ i ] << ", " << 0 << ", " << StateValues[ i ].size() << ", " << ( int ) StateValues[ i ][ 0 ] << std::endl;
 	}
 	return out;
 }
@@ -85,7 +87,7 @@ std::string& StateMachine::LocateState( std::string name ) {
 		return StateValues[ it - StateNames.begin() ];
 	}
 	StateNames.push_back( name );
-	StateValues.push_back( std::string() );
+	StateValues.push_back( std::string( 1, '\0' ) );
 	return StateValues[ StateNames.size() - 1 ];
 }
 
