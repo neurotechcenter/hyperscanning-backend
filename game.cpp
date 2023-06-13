@@ -42,7 +42,9 @@ bool Game::Connect( Client* client ) {
 				return false;
 		}
 		connect_client( client, params, clients.size() );
+		std::cout << "Connected" << std::endl;
 		clients.push_back( client );
+		std::cout << "Connected" << std::endl;
 	} else {
 		std::cout << "Client does not exist" << std::endl;
 		return false;

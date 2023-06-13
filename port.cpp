@@ -10,10 +10,12 @@
 Port::Port( int p, int to ) {
 	timeout = to;
 	port = p;
+	open = true;
 
 	sockfd = socket( AF_INET, SOCK_STREAM, 0 );
 	if ( sockfd == -1 ) {
 		std::cout << "Failed to create socket. errno: " << errno << std::endl;
+		open = false;
 	}
 
 	sockaddr.sin_family = AF_INET;
@@ -22,11 +24,14 @@ Port::Port( int p, int to ) {
 
 	if ( bind( sockfd, ( struct sockaddr* )&sockaddr, sizeof( sockaddr ) ) < 0 ) {
 		std::cout << "Failed to bind to port " << port << ". errno: " << errno << std::endl;
+		open = false;
 	}
 
 	if ( listen( sockfd, 10 ) < 0 ) {
 		std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
+		open = false;
 	}
+	
 }
 
 Client* Port::WaitForClient() {

@@ -10,6 +10,8 @@ class Port {
 	Client* WaitForClient();
 	Client* CheckForClient();
 
+	bool open;
+
 	private:
 	std::vector<Client*> connections;
 
@@ -24,4 +26,5 @@ class Port {
 	int timeout;
 
 	int port;
+
 };

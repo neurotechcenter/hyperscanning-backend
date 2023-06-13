@@ -74,8 +74,6 @@ int main() {
 	params.contents.push_back( 0 );
 
 	Port port( 1234, 100 );
-	if ( !port.open )
-		return 0;
 	std::cout << "Connected to port " << 1234 << std::endl;
 
 	std::vector<Game> games = std::vector<Game>();
@@ -89,6 +87,7 @@ int main() {
 	std::cout << "Connected to first client" << std::endl;
 	std::cout << "Waiting for second client" << std::endl;
 
+	while ( !games[ 0 ].Connect( port.WaitForClient() ) );
 	while ( !games[ 0 ].Connect( port.WaitForClient() ) );
 
 	std::cout << "Connected to second client" << std::endl;
