@@ -29,6 +29,7 @@ bool check_existing_client( Client* new_client, std::vector<Game> games ) {
 	return false;
 }
 
+
 int main() {
 
 	// Load Parameter File
@@ -84,6 +85,13 @@ int main() {
 	std::cout << "Waiting for clients" << std::endl;
 
 	Client* client1 = port.WaitForClient();
+
+	Params clientparms = Params( client1->ip_address + ".prm" );
+	if ( clientparms.contents.size() > 0 ) {
+		std::cout << "Loading existing params" << std::endl;
+		games[ 0 ].params += clientparms.contents;
+	}
+
 	games[ 0 ].Connect( client1 );
 
 	std::cout << "Connected to first client" << std::endl;
@@ -101,13 +109,16 @@ int main() {
 
 	StateMachine out_states = games[ 0 ].Loop();
 
-	std::ofstream egof( "ExistingGame.prm" );
 	std::string InitialTrialNumber = out_states.GetState( "TrialNumber" );
 	std::cout << "Trial Number: " << InitialTrialNumber << std::endl;
 	if ( InitialTrialNumber.size() == 0 ) InitialTrialNumber = "\1";
 	std::cout << "Saving Trial Number: " << ( int ) *InitialTrialNumber.c_str() - 1 << std::endl;
-	egof << "Application int InitialTrialNumber= " << ( int )*InitialTrialNumber.c_str() - 1 << " % % % // trial number" << std::endl;
-	egof << stimuliSequence << std::endl;
+
+	for ( auto client : games[ 0 ].clients ) {
+		std::ofstream egof( client->ip_address + ".prm" );
+		egof << "Application int InitialTrialNumber= " << ( int )*InitialTrialNumber.c_str() - 1 << " % % % // trial number" << std::endl;
+		egof << stimuliSequence << std::endl;
+	}
 	std::cout << "All done!" << std::endl;
 }
 

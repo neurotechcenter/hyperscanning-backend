@@ -9,11 +9,11 @@
 #include <signal.h>
 
 
-void connect_client( Client* client, std::string params, char n ) {
+void Game::ConnectClient( Client* client ) {
 	size_t size = params.size();
 	send( client->connection, &size, sizeof( params.size() ), 0 );
 	send( client->connection, params.c_str(), params.size(), 0 );
-	client->ClientNumber = n;
+	client->ClientNumber = clients.size();
 	std::string s = "ClientNumber";
 	s.push_back( '\0' );
 	s.push_back( 1 );
@@ -34,22 +34,41 @@ Game::Game( Port p, std::string ps ) : port( p ), params( ps ) {
 	signal( SIGPIPE, SIG_IGN );
 }
 
+void Game::ValidateStates( Client* client ) {
+	char* mBuffer = ( char* ) calloc( 1028, 1 );
+	recv( client->connection, mBuffer, 1028, 0 );
+
+	char m = 0;
+	if ( sharedStates.size() ) {
+		if ( std::string( mBuffer ) == sharedStates )
+			m = 1;
+		else {
+			m = 2;
+			std::cout << "Shared states don't match" << std::endl;
+		}
+	} else
+		sharedStates = std::string( mBuffer );
+	send( client->connection, &m, 1, 0 );
+}
 
 bool Game::Connect( Client* client ) {
 	if ( client ) {
-		for ( auto c : clients ) {
-			if ( c->Matches( client ) )
-				return false;
-		}
-		connect_client( client, params, clients.size() );
-		std::cout << "Connected" << std::endl;
+//		for ( auto c : clients ) {
+//			if ( c->Matches( client ) )
+//				return false;
+//		}
+		ConnectClient( client );
 		clients.push_back( client );
-		std::cout << "Connected" << std::endl;
+		ValidateStates( client );
 	} else {
 		std::cout << "Client does not exist" << std::endl;
 		return false;
 	}
 	return true;
+}
+
+void Game::AddClient( Client* client ) {
+	clients.push_back( client );
 }
 
 StateMachine Game::Loop() {
