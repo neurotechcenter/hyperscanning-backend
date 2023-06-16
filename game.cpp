@@ -36,19 +36,27 @@ Game::Game( Port p, std::string ps ) : port( p ), params( ps ) {
 
 void Game::ValidateStates( Client* client ) {
 	char* mBuffer = ( char* ) calloc( 1028, 1 );
+	std::cout << "Waiting for client to send shared states" << std::endl;
 	recv( client->connection, mBuffer, 1028, 0 );
+	std::cout << "Recieved client shared states" << std::endl;
 
 	char m = 0;
 	if ( sharedStates.size() ) {
-		if ( std::string( mBuffer ) == sharedStates )
+		if ( std::string( mBuffer ) == sharedStates ) {
 			m = 1;
+			std::cout << "Shared states match" << std::endl;
+		}
 		else {
 			m = 2;
 			std::cout << "Shared states don't match" << std::endl;
 		}
-	} else
+	} else {
 		sharedStates = std::string( mBuffer );
+		std::cout << "First client" << std::endl;
+	}
+	std::cout << "Sending client validation result." << std::endl;
 	send( client->connection, &m, 1, 0 );
+	std::cout << "Sent validation result" << std::endl;
 }
 
 bool Game::Connect( Client* client ) {
@@ -57,7 +65,10 @@ bool Game::Connect( Client* client ) {
 //			if ( c->Matches( client ) )
 //				return false;
 //		}
+
+		std::cout << "Connecting Client" << std::endl;
 		ConnectClient( client );
+		std::cout << "Validating states" << std::endl;
 		clients.push_back( client );
 		ValidateStates( client );
 	} else {
