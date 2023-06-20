@@ -13,8 +13,10 @@ class Param {
 class Params {
 	public:
 		Params( std::string );
+		Params();
 		Param* GetParam( std::string );
 		std::string contents;
 
 		void AddParam( std::string );
+		void AddParam( std::string, std::string, std::string, std::string, std::string = "%", std::string = "%", std::string = "%", std::string = "default comment" );
 };

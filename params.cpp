@@ -10,6 +10,9 @@ Params::Params( std::string in ) {
 	contents = std::string( std::istreambuf_iterator<char>( file ), ( std::istreambuf_iterator<char>() ) );
 }
 
+Params::Params() : contents() {
+}
+
 Param* Params::GetParam( std::string name ) {
 	std::vector<int> size = std::vector<int>( 2, 0 );
 
@@ -51,6 +54,11 @@ Param* Params::GetParam( std::string name ) {
 void Params::AddParam( std::string np ) {
 	contents += '\n' + np;
 }
+
+void Params::AddParam( std::string location, std::string type, std::string name, std::string value , std::string defaultValue , std::string lowRange , std::string highRange , std::string  comment ) {
+	contents += '\n' + location + " " + type + " " + name + "= " + value + " " + defaultValue + " " + lowRange + " " + highRange + " // " + comment;
+}
+
 
 Param::Param( std::string li, std::string n, std::string v, int l = 1, int w = 1 ) : line( li ), name( n ), value( v ), length( l ), width ( w ) {
 }

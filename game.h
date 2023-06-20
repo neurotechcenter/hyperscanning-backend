@@ -12,11 +12,7 @@ class Game {
 	public:
 	Game( Port p, std::string ps );
 
-	Port port;
 	std::string params;
-	std::string sharedStates;
-	std::vector<Client*> clients;
-	StateMachine masterStates = StateMachine();
 
 #define each_client for ( auto client : clients )
 
@@ -26,7 +22,19 @@ class Game {
 
 	StateMachine Loop();
 
+	bool ReadClients( );
+	void Reconcile( );
+	bool SendToClients( );
 	bool Update();
 
 	void ValidateStates( Client* client );
+
+	void SetState( std::string name, std::string value );
+
+	private:
+	StateMachine* tracker;
+	StateMachine masterStates = StateMachine();
+	std::vector<Client*> clients;
+	std::string sharedStates;
+	Port port;
 };

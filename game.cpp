@@ -89,65 +89,55 @@ StateMachine Game::Loop() {
 	}
 }
 
-bool Game::Update() {
-	StateMachine* tracker = new StateMachine();
-	bool sent = false;
-	//std::string fake;
+bool Game::ReadClients() {
+	delete tracker;
+	tracker = new StateMachine();
 	each_client {
-		auto begin = std::chrono::system_clock::now();
+		delete client->stateChanges;
 		client->stateChanges = new StateMachine();
 		if ( !client->GetUpdatedStates() ) return false;
 		std::string message = client->stateChanges->GetMessage();
 		if ( message.size() > 0 ) {
-			sent = true;
-		//	//fake = "on";
-		//	//fake += ( char )0;
-		//	//fake += ( char )1;
-		//	//fake += ( char )0;
 			std::cout << "Client Sent: " << std::endl;
 			print_string( message );
-			auto end = std::chrono::system_clock::now();
-			std::cout << "Read Time (s): " << ( ( std::chrono::duration<double> )( end - begin ) ).count() << std::endl;
-		} //else {
-		//	fake = "";
-		//}
-		//
+		}
 	}
+	return true;
+}
 
-
+void Game::Reconcile( ) {
 	each_client {
-		auto begin = std::chrono::system_clock::now();
 		masterStates.Interpret( client->stateChanges->GetMessage().c_str(), tracker );
-		auto end = std::chrono::system_clock::now();
-		if ( sent )
-			std::cout << "Interpret Time (s): " << ( ( std::chrono::duration<double> )( end - begin ) ).count() << std::endl;
 	}
+}
 
-	//masterStates.Interpret( fake.c_str(), tracker );
-
+bool Game::SendToClients( ) {
 	each_client {
-		auto begin = std::chrono::system_clock::now();
 		client->stateChanges = new StateMachine();
 		client->states->Interpret( tracker->GetMessage().c_str(), client->stateChanges );
 		std::string message = client->stateChanges->GetMessage();
-		//if ( message.size() > 0 ) {
-		//	std::cout << "Server Sending: " << std::endl;
-		//	print_string( message );
-		//}
 		if ( !client->SendStates( *client->stateChanges ) ) return false;
-		auto end = std::chrono::system_clock::now();
-		if ( sent )
-			std::cout << "Write Time (s): " << ( ( std::chrono::duration<double> )( end - begin ) ).count() << std::endl;
 	}
+	return true;
+}
 
-	//each_client {
-		//std::cout << "Updating client " << i++ << "'s states..." << std::endl;
-		//client->states.message.push_back( 0 );
-		//masterStates.Interpret( client->states.message.c_str() );
-		//client->states.message.clear();
-	//}
+bool Game::Update() {
+	StateMachine* tracker = new StateMachine();
 
-	//std::cout << "Sending updated states..." << std::endl;
+	if ( !ReadClients() )
+		return false;
+
+	Reconcile();
+
+	if ( !SendToClients() )
+		return false;
 
 	return true;
+
+}
+
+void Game::SetState( std::string name, std::string value ) {
+	if ( !masterStates.SetState( name, value ) && tracker ) {
+		tracker->SetState( name, value );
+	}
 }

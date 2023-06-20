@@ -12,16 +12,18 @@ class StateMachine {
 
 	const char* GetState( std::string );
 	bool SetState( std::string, std::string );
-//	void SetState( std::string, std::string, bool );
-//	void SetState( std::string, char*, char );
 
 	void Interpret( const char* buffer, StateMachine* );
-	//void Interpret( char* buffer );
 	void ReadSocket();
 
 	std::string GetMessage();
 
 	void ClearMessage();
+
+
+	private:
+
+	std::string& LocateState( std::string );
 
 	std::string message;
 
@@ -30,8 +32,4 @@ class StateMachine {
 
 	std::vector<std::string> ChangedStates;
 	std::vector<std::string> ChangedValue;
-
-	private:
-
-	std::string& LocateState( std::string );
 };
