@@ -14,18 +14,12 @@ class StateMachine {
 	bool SetState( std::string, std::string );
 
 	void Interpret( const char* buffer, StateMachine* );
-	void ReadSocket();
 
 	std::string GetMessage();
-
-	void ClearMessage();
-
 
 	private:
 
 	std::string& LocateState( std::string );
-
-	std::string message;
 
 	std::vector<std::string> StateNames;
 	std::vector<std::string> StateValues;
