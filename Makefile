@@ -8,7 +8,7 @@ OBJ = port.o client.o statemachine.o game.o params.o
 %.o : %.cpp
 	$(CC) -c $(LIBS) $(LIBDIRS) $(INC) $< -o $@
 
-all: application base_application modify_params save_trial edit_states
+all: application base_application modify_params save_trial edit_states poker
 
 
 application: $(OBJ)
@@ -25,3 +25,6 @@ save_trial: $(OBJ)
 
 edit_states: $(OBJ)
 	$(CC) examples/edit_states.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -o edit_states
+
+poker: $(OBJ)
+	$(CC) examples/poker.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o poker

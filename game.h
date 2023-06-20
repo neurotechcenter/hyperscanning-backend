@@ -30,9 +30,10 @@ class Game {
 	void ValidateStates( Client* client );
 
 	void SetState( std::string name, std::string value );
+	const char* GetState( std::string name );
 
 	private:
-	StateMachine* tracker;
+	StateMachine* tracker = nullptr;
 	StateMachine masterStates = StateMachine();
 	std::vector<Client*> clients;
 	std::string sharedStates;

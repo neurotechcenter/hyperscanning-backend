@@ -17,8 +17,8 @@ class Client {
 	int connection;
 	char ClientNumber;
 
-	StateMachine* states;
-	StateMachine* stateChanges;
+	StateMachine* states = nullptr;
+	StateMachine* stateChanges = nullptr;
 
 	bool Matches( Client* o );
 

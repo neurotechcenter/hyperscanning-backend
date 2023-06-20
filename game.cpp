@@ -90,10 +90,10 @@ StateMachine Game::Loop() {
 }
 
 bool Game::ReadClients() {
-	delete tracker;
+	if ( tracker ) delete tracker;
 	tracker = new StateMachine();
 	each_client {
-		delete client->stateChanges;
+		if ( client->stateChanges ) delete client->stateChanges;
 		client->stateChanges = new StateMachine();
 		if ( !client->GetUpdatedStates() ) return false;
 		std::string message = client->stateChanges->GetMessage();
@@ -113,6 +113,7 @@ void Game::Reconcile( ) {
 
 bool Game::SendToClients( ) {
 	each_client {
+		if ( client->stateChanges ) delete client->stateChanges;
 		client->stateChanges = new StateMachine();
 		client->states->Interpret( tracker->GetMessage().c_str(), client->stateChanges );
 		std::string message = client->stateChanges->GetMessage();
@@ -140,4 +141,8 @@ void Game::SetState( std::string name, std::string value ) {
 	if ( !masterStates.SetState( name, value ) && tracker ) {
 		tracker->SetState( name, value );
 	}
+}
+
+const char* Game::GetState( std::string name ) {
+	return masterStates.GetState( name );
 }
