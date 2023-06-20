@@ -18,5 +18,6 @@ class Params {
 		std::string contents;
 
 		void AddParam( std::string );
-		void AddParam( std::string, std::string, std::string, std::string, std::string = "%", std::string = "%", std::string = "%", std::string = "default comment" );
+		void AddParam( std::string, std::string, std::string, std::string, std::string = "%", std::string = "%", std::string = "%", std::string = "default comment", std::string = "", std::string = "" );
+		void AddParam( Param );
 };

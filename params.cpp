@@ -29,10 +29,13 @@ Param* Params::GetParam( std::string name ) {
 	if ( line.find( "list" ) != std::string::npos ) i = 1;
 	if ( line.find( "matrix" ) != std::string::npos ) i = 2;
 
+	char c;
 	for ( int l = 0; l < i; l++ ) {
-		if ( contents[ ++s ] == '{' ) {
+		c = contents[ ++s ];
+		if (  c == '{' || c == '[' ) {
 			s++;
-			while ( contents[ ++s ] != '}' ) {
+			c = contents[ ++s ];
+			while ( c != '}' && c != ']' ) {
 				s = contents.find( ' ', s );
 				size[ l ]++;
 			}
@@ -55,8 +58,12 @@ void Params::AddParam( std::string np ) {
 	contents += '\n' + np;
 }
 
-void Params::AddParam( std::string location, std::string type, std::string name, std::string value , std::string defaultValue , std::string lowRange , std::string highRange , std::string  comment ) {
-	contents += '\n' + location + " " + type + " " + name + "= " + value + " " + defaultValue + " " + lowRange + " " + highRange + " // " + comment;
+void Params::AddParam( std::string location, std::string type, std::string name, std::string value , std::string defaultValue , std::string lowRange , std::string highRange , std::string  comment, std::string width, std::string height ) {
+	contents += '\n' + location + " " + type + " " + name + "= " + width + ( width.size() ? " " : "" ) + height + ( height.size() ? " " : "" ) + value + " " + defaultValue + " " + lowRange + " " + highRange + " // " + comment;
+}
+
+void Params::AddParam( Param param ) {
+	contents += '\n' + param.line;
 }
 
 

@@ -11,25 +11,6 @@
 #include <random>
 #include "params.h"
 
-
-bool check_existing_client( Client* new_client, std::vector<Game> games ) {
-	for ( auto game : games ) {
-		for ( auto client: game.clients ) {
-			if ( client->ip_address == new_client->ip_address && client->port == new_client->port ) {
-				client = new_client;
-				StateMachine s = StateMachine();
-				for ( int i = 0; i < game.masterStates.StateNames.size(); i++ ) {
-					s.SetState( game.masterStates.StateNames[ i ], game.masterStates.StateValues[ i ] );
-				}
-				client->SendStates( s );
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-
 int main() {
 
 	// Load Parameter File
@@ -79,46 +60,46 @@ int main() {
 		return 0;
 	std::cout << "Connected to port " << 1234 << std::endl;
 
-	std::vector<Game> games = std::vector<Game>();
-	games.push_back( Game( port, params.contents ) );
-
 	std::cout << "Waiting for clients" << std::endl;
-
 	Client* client1 = port.WaitForClient();
-
-	Params clientparms = Params( client1->ip_address + ".prm" );
-	if ( clientparms.contents.size() > 0 ) {
-		std::cout << "Loading existing params" << std::endl;
-		games[ 0 ].params += clientparms.contents;
-	}
-
-	games[ 0 ].Connect( client1 );
-
-	std::cout << "Connected to first client" << std::endl;
 	std::cout << "Waiting for second client" << std::endl;
+	Client* client2 = port.WaitForClient();
 
-	while ( !games[ 0 ].Connect( port.WaitForClient() ) );
+	std::cout << "Loading existing params" << std::endl;
+	Params clientparms = Params( client1->ip_address + "-" + client2->ip_address + ".prm" );
+	if ( clientparms.contents.size() <= 0 )
+		clientparms = Params( client2->ip_address + "-" + client1->ip_address + ".prm" );
 
+	if ( clientparms.contents.size() <= 0 )
+		std::cout << "Could not find existing parameters" << std::endl;
+
+
+	// Initialize Game
+	Game game = Game( port, clientparms.contents );
+
+	// Connect first client
+	game.Connect( client1 );
+	std::cout << "Connected to first client" << std::endl;
+	game.Connect( client2 );
 	std::cout << "Connected to second client" << std::endl;
 
-	auto time = std::chrono::system_clock::now();
-	auto interval = std::chrono::milliseconds( 1 );
 
-	int nClients = 2;
-	int nGames = 1;
+	// Run game loop
+	StateMachine out_states = game.Loop();
 
-	StateMachine out_states = games[ 0 ].Loop();
+	std::cout << "All done!" << std::endl;
+
 
 	std::string InitialTrialNumber = out_states.GetState( "TrialNumber" );
 	std::cout << "Trial Number: " << InitialTrialNumber << std::endl;
 	if ( InitialTrialNumber.size() == 0 ) InitialTrialNumber = "\1";
 	std::cout << "Saving Trial Number: " << ( int ) *InitialTrialNumber.c_str() - 1 << std::endl;
 
-	for ( auto client : games[ 0 ].clients ) {
-		std::ofstream egof( client->ip_address + ".prm" );
-		egof << "Application int InitialTrialNumber= " << ( int )*InitialTrialNumber.c_str() - 1 << " % % % // trial number" << std::endl;
-		egof << stimuliSequence << std::endl;
-	}
+	Params outparams = Params();
+	outparams.AddParam( "Application", "int", "InitialTrialNumber", std::to_string( ( int )*InitialTrialNumber.c_str() - 1 ) );
+	std::ofstream egof( client1->ip_address + "-" + client2->ip_address + ".prm" );
+	egof << outparams.contents << std::endl;
+
 	std::cout << "All done!" << std::endl;
 }
 

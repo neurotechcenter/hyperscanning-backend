@@ -8,14 +8,14 @@ Find information about the architecture and examples of BCI2000 Hyperscanning he
 Backend implementation of a client connection.
 
 ## Constructor:
-###`Client::Client( int socket, int timeout, std::string ip, int port )`  
+### `Client::Client( int socket, int timeout, std::string ip, int port )`  
 `int socket` : File descriptor of the client connection  
 `int timeout` : no longer in use  
 `std::string ip` : IPv4 Address of the client  
 `int port` : Port of the client  
 
 ## Methods:
-###`bool Client::GetUpdatedStates()`  
+### `bool Client::GetUpdatedStates()`  
 Updates the clients internal state machine (aka server-side-client state machine), `Client::states`. Changes are tracked in `Client::stateChanges`. Blocks for 2ms to check if the client wrote to the socket before moving on. Also checks if the client disconnected.\
 
 Returns:  
@@ -223,10 +223,10 @@ Arguments:
 
 ---
 
-### `void Params::AddParam( std::string location, std::string type, std::string name, std::string value, std::string defaultValue = "%", std::string lowRange = "%", std::string highRange = "%", std::string comment = "default comment" )`
+### `void Params::AddParam( std::string location, std::string type, std::string name, std::string value, std::string defaultValue = "%", std::string lowRange = "%", std::string highRange = "%", std::string comment = "default comment", std::string width = "", std::string height = "" )`
 Adds the specified parameter to the represented parameter file
 
-Argumetns:  
+Arguments:  
 `std::string location` : Location of parameter in BCI2000 config window, e.g. Application:Sequence or Source  
 `std::string type` : Type of parameter, e.g. int, intlist, or matrix  
 `std::string name` : Name of the parameter  
@@ -235,6 +235,16 @@ Argumetns:
 `std::string lowRange` : low range of the parameter value (defaults to "%", which is no low range)  
 `std::string highRange` : high range of the parameter value (defaults to "%", which is no high range)  
 `std::string comment` : comment describing the parameter (defaults to "default comment")  
+`std::string width` : Width (if list or matrix) of the dataset. Can be a number or "{" or "[" contained list  
+`std::string height` : Height (if matrix) of the dataset. Can be a number or "{" or "[" contained list  
+
+---
+
+### `void Params::AddParam( Param param )`
+Adds the specified parameter to the represetnted parameter file from a parameter object  
+
+Arguments:  
+`Param param` : parameter object to add  
 
 
 # Port

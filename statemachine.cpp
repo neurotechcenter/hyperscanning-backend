@@ -98,6 +98,3 @@ const char* StateMachine::GetState( std::string name ) {
 StateMachine::~StateMachine() {
 }
 
-void StateMachine::ClearMessage() {
-	message.clear();
-}
