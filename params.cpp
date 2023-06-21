@@ -38,6 +38,7 @@ Param* Params::GetParam( std::string name ) {
 			while ( c != '}' && c != ']' ) {
 				s = contents.find( ' ', s );
 				size[ l ]++;
+				c = contents[ ++s ];
 			}
 			s++;
 		} else {

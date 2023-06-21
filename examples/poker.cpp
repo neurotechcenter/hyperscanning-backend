@@ -53,6 +53,7 @@ int main() {
 
 	int players = 1;
 
+	std::vector<int> playerHands = std::vector<int>( 2 * players );
 	std::vector<int> bets = std::vector<int>( players );
 	std::vector<int> money = std::vector<int>( players );
 
@@ -84,10 +85,12 @@ int main() {
 				auto rng = std::default_random_engine( rd() );
 				std::shuffle( std::begin( order ), std::end( order ), rng );
 
-				int d0 = order[ n++ ];
-				int d1 = order[ n++ ];
-				game.SetState( "deal00", statewise( d0 ) );
-				game.SetState( "deal01", statewise( d1 ) );
+				for ( int i = 0; i < players; i++ ) {
+					int d0 = order[ n++ ];
+					int d1 = order[ n++ ];
+					playerHands[ 2 * i ] = d0;
+					playerHands[ 2 * i + 1 ] = d1;
+				}
 
 				phase++;
 				add = 0;
@@ -168,8 +171,8 @@ int main() {
 					std::vector<int> hand = std::vector<int>( 7 );
 					for ( int l = 0; l < 5; l++ )
 						hand[ l ] = ( river[ l ] );
-					hand[ 5 ] = ( int ) * (  game.GetState( "deal" + std::to_string( i ) + "0" ) );
-					hand[ 6 ] = ( int ) * (  game.GetState( "deal" + std::to_string( i ) + "1" ) );
+					hand[ 5 ] = playerHands[ i * 2 ];
+					hand[ 6 ] = playerHands[ i * 2 + 1 ];
 
 					std::sort( hand.begin(), hand.end() );
 
@@ -191,7 +194,7 @@ int main() {
 					if ( handRank[ i ] == 1 ) continue;
 
 					// Four of a kind, full house, three of a kind, two pair, or pair
-					int card = hand[ 0 ] % 13;
+					int card = playerHands[ i * 2 ];
 					int number = 0;
 					int maxNumber = 0;
 					int n2s = 0;
@@ -199,10 +202,18 @@ int main() {
 					int n3s = 0;
 					std::vector<int> rank3s = std::vector<int>( 2 );
 					int fourCard;
-					for ( int l = 0; l < 7; l++ ) {
-						for ( int q = l + 1; q < 7; q++ ) {
-							if ( hand[ q ] % 13 == card )
+					std::vector<int> illegals = std::vector<int>( 7 );
+
+					std::cout << "Duplicates check" << std::endl;
+					for ( int l = 0; l < 2; l++ ) {
+						std::cout << "Card: " << card << ", " << card % 13 << std::endl;
+						for ( int q = 0; q < 7; q++ ) {
+							if ( hand[ q ] % 13 == card % 13 ) {
 								number++;
+								std::cout << "Matched with: " << hand[ q ] << ", " << hand[ q ] % 13 << ", for " << number << " matches" << std::endl;
+							} else {
+								std::cout << "Not matched with: " << hand[ q ] << ", " << hand[ q ] % 13 << std::endl;
+							}
 						}
 
 						if ( number > maxNumber )
@@ -215,7 +226,7 @@ int main() {
 						if ( number == 4 )
 							fourCard = ( hand[ l ] % 13 );
 
-						card = hand[ l ] % 13;
+						card = hand[ i * 2 + 1 ];
 						number = 0;
 					}
 
@@ -351,8 +362,8 @@ int main() {
 					game.SetState( "winner", statewise( minPlayer ) );
 				}
 
-				if ( ( int )  *(  game.GetState( "confirmed" ) ) )
-					phase = 0;
+				//if ( ( int )  *(  game.GetState( "confirmed" ) ) )
+				//	phase = 0;
 
 				break;
 			}
@@ -363,7 +374,14 @@ int main() {
 
 		game.SetState( "phase", statewise( phase ) );
 
-		if ( !game.SendToClients() ) break; // if client disconnects, end the loop
+		bool connected = true;
+		for ( int i = 0; i < players; i++ ) {
+			game.tracker->SetState( "deal00", statewise( playerHands[ 2 * i ] ) );
+			game.tracker->SetState( "deal01", statewise( playerHands[ 2 * i + 1 ] ) );
+			game.tracker->SetState( "money", statewise( money[ i ] ) );
+			if ( !game.SendToClient( game.clients[ i ]  ) ) connected = false;
+		}
+		if ( !connected ) break; // if client disconnects, end the loop
 	}
 
 	std::cout << "All done!" << std::endl;

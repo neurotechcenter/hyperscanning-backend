@@ -113,13 +113,18 @@ void Game::Reconcile( ) {
 
 bool Game::SendToClients( ) {
 	each_client {
+		if ( !SendToClient( client ) ) return false;
+	}
+	return true;
+}
+
+bool Game::SendToClient( Client* client ) {
 		if ( client->stateChanges ) delete client->stateChanges;
 		client->stateChanges = new StateMachine();
 		client->states->Interpret( tracker->GetMessage().c_str(), client->stateChanges );
 		std::string message = client->stateChanges->GetMessage();
 		if ( !client->SendStates( *client->stateChanges ) ) return false;
-	}
-	return true;
+		return true;
 }
 
 bool Game::Update() {

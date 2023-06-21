@@ -1,0 +1,4 @@
+
+Application int InitialTrialNumber= 0 % % % // default comment
+
+Application:Sequence intlist StimuliSequence= 90 29 26 20 35 23 40 78 19 47 83 32 28 62 77 18 82 12 15 39 11 17 46 54 68 22 6 38 43 88 0 27 76 53 75 71 4 61 60 49 7 85 37 34 24 65 21 58 2 1 64 13 56 25 44 30 57 66 69 63 9 55 3 84 8 50 79 89 42 31 51 87 36 14 59 74 72 81 10 41 52 16 5 86 80 67 70 48 45 33 73 % % % //Random Stimuli Sequence

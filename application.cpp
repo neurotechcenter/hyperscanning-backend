@@ -17,43 +17,6 @@ int main() {
 	Params params = Params( "HyperscanningParameters.prm" );
 
 	// Load previous parameters
-	Params existing = Params( "ExistingGame.prm" );
-
-	std::string stimuliSequence;
-
-	if ( existing.contents.size() > 0 ) {
-		params.contents += existing.contents;
-
-		stimuliSequence = existing.GetParam( "StimuliSequence" )->line;
-	}
-	else {
-		// Generate Random Sequence
-
-		Param* stimmat = params.GetParam( "StimuliMatrix" );
-
-		std::vector<int> order = std::vector<int>( stimmat->width );
-		for ( int i = 0; i < stimmat->width; i++ )
-			order[ i ] = i;
-
-		std::random_device rd;
-		auto rng = std::default_random_engine( rd() );
-		std::shuffle( std::begin( order ), std::end( order ), rng );
-
-		stimuliSequence = "\nApplication:Sequence intlist StimuliSequence= ";
-		stimuliSequence += std::to_string( stimmat->width );
-		stimuliSequence += " ";
-		for ( int i = 0; i < stimmat->width; i++ ) {
-			stimuliSequence += std::to_string( order[ i ] );
-			stimuliSequence += " ";
-		}
-		stimuliSequence += "% % % //Random Stimuli Sequence";
-
-		params.AddParam( stimuliSequence );
-
-		params.AddParam( "Application int InitialTrialNumber= 0 % % % // trial number" );
-	}
-
-	params.contents.push_back( 0 );
 
 	Port port( 1234, 100 );
 	if ( !port.open )
@@ -70,12 +33,58 @@ int main() {
 	if ( clientparms.contents.size() <= 0 )
 		clientparms = Params( client2->ip_address + "-" + client1->ip_address + ".prm" );
 
+	std::string stimuliSequence;
+
+	if ( clientparms.contents.size() > 0 ) {
+		std::cout << "Found existing game" << std::endl;
+		params.contents += clientparms.contents;
+
+		stimuliSequence = clientparms.GetParam( "StimuliSequence" )->line;
+	}
+	else {
+		// Generate Random Sequence
+
+		std::cout << "Did not find existing game" << std::endl;
+		std::cout << "Generating new values..." << std::endl;
+		Param* stimmat = params.GetParam( "StimuliMatrix" );
+		std::cout << "Got stimuli matrix" << std::endl;
+
+		std::vector<int> order = std::vector<int>( stimmat->width );
+		for ( int i = 0; i < stimmat->width; i++ )
+			order[ i ] = i;
+
+		std::cout << "Width: " << stimmat->width << std::endl;
+
+		std::random_device rd;
+		auto rng = std::default_random_engine( rd() );
+		std::shuffle( std::begin( order ), std::end( order ), rng );
+
+		std::cout << "First: " << order[ 0 ] << std::endl;
+
+		stimuliSequence = "\nApplication:Sequence intlist StimuliSequence= ";
+		stimuliSequence += std::to_string( stimmat->width );
+		stimuliSequence += " ";
+		for ( int i = 0; i < stimmat->width; i++ ) {
+			stimuliSequence += std::to_string( order[ i ] );
+			stimuliSequence += " ";
+		}
+		stimuliSequence += "% % % //Random Stimuli Sequence";
+
+		std::cout << stimuliSequence << std::endl;
+
+		params.AddParam( stimuliSequence );
+
+		params.AddParam( "Application int InitialTrialNumber= 0 % % % // trial number" );
+	}
+
+	params.contents.push_back( 0 );
+
 	if ( clientparms.contents.size() <= 0 )
 		std::cout << "Could not find existing parameters" << std::endl;
 
 
 	// Initialize Game
-	Game game = Game( port, clientparms.contents );
+	Game game = Game( port, params.contents );
 
 	// Connect first client
 	game.Connect( client1 );
@@ -97,6 +106,7 @@ int main() {
 
 	Params outparams = Params();
 	outparams.AddParam( "Application", "int", "InitialTrialNumber", std::to_string( ( int )*InitialTrialNumber.c_str() - 1 ) );
+	outparams.AddParam( stimuliSequence );
 	std::ofstream egof( client1->ip_address + "-" + client2->ip_address + ".prm" );
 	egof << outparams.contents << std::endl;
 

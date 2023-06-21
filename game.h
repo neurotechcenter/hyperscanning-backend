@@ -25,6 +25,7 @@ class Game {
 	bool ReadClients( );
 	void Reconcile( );
 	bool SendToClients( );
+	bool SendToClient( Client* client );
 	bool Update();
 
 	void ValidateStates( Client* client );
@@ -32,10 +33,11 @@ class Game {
 	void SetState( std::string name, std::string value );
 	const char* GetState( std::string name );
 
-	private:
+	std::vector<Client*> clients;
 	StateMachine* tracker = nullptr;
 	StateMachine masterStates = StateMachine();
-	std::vector<Client*> clients;
+
+	private:
 	std::string sharedStates;
 	Port port;
 };
