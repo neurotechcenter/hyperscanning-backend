@@ -9,6 +9,7 @@
 #include <fstream>
 #include <algorithm>
 #include <random>
+#include <fstream>
 #include "params.h"
 
 int main() {
@@ -29,9 +30,13 @@ int main() {
 	Client* client2 = port.WaitForClient();
 
 	std::cout << "Loading existing params" << std::endl;
+	bool swaped = false;
 	Params clientparms = Params( client1->ip_address + "-" + client2->ip_address + ".prm" );
-	if ( clientparms.contents.size() <= 0 )
+	if ( clientparms.contents.size() <= 0 ) {
 		clientparms = Params( client2->ip_address + "-" + client1->ip_address + ".prm" );
+		swaped = true;
+		
+	}
 
 	std::string stimuliSequence;
 
@@ -87,10 +92,18 @@ int main() {
 	Game game = Game( port, params.contents );
 
 	// Connect first client
-	game.Connect( client1 );
-	std::cout << "Connected to first client" << std::endl;
-	game.Connect( client2 );
-	std::cout << "Connected to second client" << std::endl;
+	if ( !swaped ) {
+		game.Connect( client1 );
+		std::cout << "Connected to first client" << std::endl;
+		game.Connect( client2 );
+		std::cout << "Connected to second client" << std::endl;
+	} else {
+		game.Connect( client2 );
+		std::cout << "Connected to first client" << std::endl;
+		game.Connect( client1 );
+		std::cout << "Connected to second client" << std::endl;
+	}
+
 
 
 	// Run game loop
@@ -107,8 +120,15 @@ int main() {
 	Params outparams = Params();
 	outparams.AddParam( "Application", "int", "InitialTrialNumber", std::to_string( ( int )*InitialTrialNumber.c_str() - 1 ) );
 	outparams.AddParam( stimuliSequence );
-	std::ofstream egof( client1->ip_address + "-" + client2->ip_address + ".prm" );
-	egof << outparams.contents << std::endl;
+	if ( !swaped ) {
+		std::ofstream egof( client1->ip_address + "-" + client2->ip_address + ".prm" );
+		egof << outparams.contents << std::endl;
+	}
+	else {
+		std::ofstream egof( client2->ip_address + "-" + client1->ip_address + ".prm" );
+		egof << outparams.contents << std::endl;
+	}
+
 
 	std::cout << "All done!" << std::endl;
 }
