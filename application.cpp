@@ -34,7 +34,7 @@ int main() {
 	Params clientparms = Params( client1->ip_address + "-" + client2->ip_address + ".prm" );
 	if ( clientparms.contents.size() <= 0 ) {
 		clientparms = Params( client2->ip_address + "-" + client1->ip_address + ".prm" );
-		swaped = true;
+		if ( clientparms.contents.size() ) swaped = true;
 		
 	}
 
