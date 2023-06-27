@@ -6,6 +6,7 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 Port::Port( int p, int to ) {
 	timeout = to;
@@ -60,3 +61,8 @@ Client* Port::CheckForClient() {
 	return nullptr;
 }
 
+void Port::Close() {
+	close( sockfd );
+	for ( auto c : connections )
+		close( c->connection );
+}

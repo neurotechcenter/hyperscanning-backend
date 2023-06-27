@@ -9,6 +9,7 @@ class Port {
 
 	Client* WaitForClient();
 	Client* CheckForClient();
+	void Close();
 
 	bool open;
 

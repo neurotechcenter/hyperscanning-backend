@@ -8,6 +8,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <cstdlib>
 
 #define statewise( x ) std::string( ( char* ) &x, sizeof( x ) )
 
@@ -29,14 +30,18 @@ int main() {
 
 	std::cout << "Waiting for clients" << std::endl;
 
-	// Connect first client
-	game.Connect( port.WaitForClient() );
+	auto client1 = port.WaitForClient();
+	auto client2 = port.WaitForClient();
+	//auto client3 = port.WaitForClient();
+
+	game.Connect( client1 );
+	game.Connect( client2 );
+	//game.Connect( client3 );
 
 	std::cout << "Connected to first client" << std::endl;
 	std::cout << "Waiting for second client" << std::endl;
 
 	// Connect second client
-	//game.Connect( port.WaitForClient() );
 
 	std::cout << "Connected to second client" << std::endl;
 
@@ -51,11 +56,13 @@ int main() {
 
 	int n = 0;
 
-	int players = 1;
+	int players = 2;
 
 	std::vector<int> playerHands = std::vector<int>( 2 * players );
 	std::vector<int> bets = std::vector<int>( players );
-	std::vector<int> money = std::vector<int>( players );
+	std::vector<int> money = std::vector<int>( players, 100 );
+	std::vector<bool> folded = std::vector<bool>( players, false );
+	int nFolded = 0;
 
 	std::vector<int> river = std::vector<int>( 5 );
 
@@ -63,8 +70,16 @@ int main() {
 	std::vector<int> cardRank = std::vector<int>( players );
 
 	int nRiver = 0;
+	int r = 55;
 
 	int add = 0;
+	int aow = 5;
+	bool rego = true;
+	bool regoa = false;
+	int regoman = 0;
+	int regoaman = 0;
+
+	bool setwinner = false;
 
 	// Run game loop
 	for ( ;; ) {
@@ -80,21 +95,46 @@ int main() {
 				for ( int i = 0; i < order.size(); i++ )
 					order[ i ] = i;
 
+
 				// Randomize order
 				std::random_device rd;
 				auto rng = std::default_random_engine( rd() );
 				std::shuffle( std::begin( order ), std::end( order ), rng );
 
+				river = std::vector<int>( 5 );
+				for ( int i = 0; i < 5; i++ ) {
+					game.SetState( "river" + std::to_string( i ), statewise( r ) );
+				}
+				bets = std::vector<int>( players );
+				folded = std::vector<bool>( players, false );
+				nRiver = 0;
+				add = 0;
+				aow = 4;
+				rego = true;
+				regoa = false;
+				regoman = 0;
+				regoaman = 0;
+				setwinner = false;
+				nFolded = 0;
+
 				for ( int i = 0; i < players; i++ ) {
+					handRank[ i ] = 10;
 					int d0 = order[ n++ ];
 					int d1 = order[ n++ ];
 					playerHands[ 2 * i ] = d0;
 					playerHands[ 2 * i + 1 ] = d1;
+
 				}
+
+
+				bets[ abs( ( regoman - 2 ) % players ) ] = 2;
+				money[ abs( ( regoman - 2 ) % players ) ] -= 2;
+				bets[ abs( ( regoman - 1 ) % players ) ] = 4;
+				money[ abs( ( regoman - 1 ) % players ) ] -= 4;
 
 				phase++;
 				add = 0;
-				game.SetState( "turn", statewise( add ) );
+				aow = 4;
 				game.SetState( "confirmed", statewise( add ) );
 				break;
 			}
@@ -105,19 +145,75 @@ int main() {
 				int bet = ( int ) *(  game.GetState( "bet" ) );
 				int confirmed = ( int ) * (  game.GetState( "confirmed" ) );
 
+				game.SetState( "pbet", statewise( bets[ turn ] ) );
+
+				if ( players - nFolded == 1 ) {
+					phase = 3;
+					std::cout << "win by default" << std::endl;
+				}
+
 				if ( confirmed ) {
 
+					if ( bet == 0 ) {
+						folded[ turn ] = true;
+						nFolded++;
+						std::cout << "Player " << turn << " Folded" << std::endl;
+
+						if ( players - nFolded == 1 ) {
+							phase = 3;
+							std::cout << "Win by default" << std::endl;
+						}
+					}
+					else
+						money[ turn ] -= bet - bets[ turn ];
+
 					bets[ turn ] = bet;
+					if ( bet > aow ) {
+						if ( !rego ) {
+							std::cout << "Rego" << std::endl;
+							rego = true;
+							regoa = false;
+							regoman = abs( ( turn ) % players );
+						} else {
+							std::cout << "Rego again" << std::endl;
+							regoa = true;
+							rego = false;
+							regoaman = abs( ( turn ) % players );
+						}
+
+						aow = bet;
+					}
+
 
 					std::cout << "Player " << turn << " bet " << bet << std::endl;
+					int msgp = turn + 1;
+					game.SetState( "msgp", statewise( msgp ) );
+					game.SetState( "msg", statewise( bets[ turn ] ) );
 
-					game.SetState( "turn", statewise( ( ++turn ) ) );
+
+					turn = ( turn + 1 ) % players;
+					while ( folded[ turn ] ) {
+						std::cout << "Skipping player " << turn << " because they folded" << std::endl;
+						if ( ( turn == regoman && !( regoa ) ) || ( turn == regoaman && !rego ) ) {
+							std::cout << "Finished betting" << std::endl;
+							phase++;
+						}
+						turn = ( turn + 1 ) % players;
+					}
+
+					std::cout << "It is now player " << turn << "'s turn" << std::endl;
+
+					std::cout << turn << ", " << regoman << ", " << regoa << ", " << regoaman << ", " << rego << std::endl;
+					if ( ( turn == regoman && !( regoa ) ) || ( turn == regoaman && !rego ) ) {
+						std::cout << "Finished betting" << std::endl;
+						phase++;
+					}
+
+					game.SetState( "turn", statewise( ( turn ) ) );
 					confirmed = 0;
 					game.SetState( "confirmed", statewise( confirmed ) );
 
-					if ( turn == players ) {
-						phase++;
-					}
+
 
 				}
 
@@ -168,6 +264,12 @@ int main() {
 			// Win conditions
 			case 3: {
 				for ( int i = 0; i < players; i++ ) {
+					if ( folded[ i ] ) {
+						handRank[ i ] = 10;
+						cardRank[ i ] = 0;
+						continue;
+					}
+
 					std::vector<int> hand = std::vector<int>( 7 );
 					for ( int l = 0; l < 5; l++ )
 						hand[ l ] = ( river[ l ] );
@@ -180,7 +282,7 @@ int main() {
 					for ( int l = 0; l < 3; l++ ) {
 						int errs = 0;
 						for ( int q = 0; q < 7 - l; q++ ) {
-							if ( hand[ l + q ] - hand[ l ] != q )
+							if ( hand[ l + q ] - hand[ l ] != q && ! ( hand[ l ] % 13 == 0 && hand[ l + q ] % 13 == 12 && hand[ l + q ] - hand[ l ] == 12 ) )
 								errs++;
 							if ( errs > 2 - l )
 								break;
@@ -202,7 +304,6 @@ int main() {
 					int n3s = 0;
 					std::vector<int> rank3s = std::vector<int>( 2 );
 					int fourCard;
-					std::vector<int> illegals = std::vector<int>( 7 );
 
 					std::cout << "Duplicates check" << std::endl;
 					for ( int l = 0; l < 2; l++ ) {
@@ -226,7 +327,7 @@ int main() {
 						if ( number == 4 )
 							fourCard = ( hand[ l ] % 13 );
 
-						card = hand[ i * 2 + 1 ];
+						card = playerHands[ i * 2 + 1 ];
 						number = 0;
 					}
 
@@ -238,21 +339,30 @@ int main() {
 
 					if ( n2s >= 1 && n3s >= 1 ) {
 						handRank[ i ] = 3;
-						cardRank[ i ] = rank3s[ 0 ];
+						cardRank[ i ] = rank3s[ 0 ] * 13 + rank2s[ 0 ];
 						continue;
 					}
 
 					// Flush
+					std::vector<int> ranks = std::vector<int>( 5 );
 					for ( int l = 0; l < 3; l++ ) {
 						int errs = 0;
 						for ( int q = 0; q < 7; q++ ) {
 							if ( hand[ l + q ] / 13 !=  hand[ l ] / 13 )
 								errs++;
+							else
+								ranks[ q - errs ] = hand[ l + q ] % 13;
 							if ( errs > 2 - l )
 								break;
 							if ( q == 6 - l ) {
 								handRank[ i ] = 4;
-								cardRank[ i ] = ( hand[ l ] % 13 );
+								std::sort( ranks.begin(), ranks.end() );
+								int p = 1;
+								cardRank[ i ] = 0;
+								for ( int z = 0; z < 5; z++ ) {
+									cardRank[ i ] += ranks[ z ] * p;
+									p *= 13;
+								}
 							}
 						}
 					}
@@ -263,16 +373,21 @@ int main() {
 
 
 					// Straight
+
+					std::vector<int> aHand = std::vector<int>( 7 );
+					for ( int l = 0; l < 7; l++ ) {
+						aHand[ l ] = hand[ l ] % 13;
+					}
+					std::sort( aHand.begin(), aHand.end() );
+					
 					for ( int l = 0; l < 3; l++ ) {
 						int errs = 0;
-						for ( int q = 0; q < 7; q++ ) {
-							if ( hand[ l + q ] % 13 !=  hand[ l ] % 13 )
-								errs++;
-							if ( errs > 2 - l )
+						for ( int q = 0; q < 5; q++ ) {
+							if ( aHand[ l + q ] != aHand[ l ] + q && ! ( aHand[ l + q ] % 13 == 12 && aHand[ l] == 0 ) )
 								break;
-							if ( q == 6 - l ) {
+							if ( q == 4 ) {
 								handRank[ i ] = 5;
-								cardRank[ i ] = ( hand[ l ] % 13 );
+								cardRank[ i ] = ( aHand[ l ] % 13 == 0 && aHand[ l + q ] % 13 == 12 ) ? 4 : aHand[ l + q ];
 							}
 						}
 					}
@@ -284,38 +399,50 @@ int main() {
 					// Three of a kind
 					if ( n3s >= 1 ) {
 						handRank[ i ] = 6;
-						cardRank[ i ] = rank3s[ 0 ];
+						cardRank[ i ] = rank3s[ 0 ] * 13 * 13;
+						std::vector<int> maxi;
+						for ( int l = 0; l < 7; l++ ) {
+							if ( hand[ l ] % 13 != rank3s[ 0 ] ) {
+								maxi.push_back( hand[ l ] % 13 );
+							}
+						}
+						std::sort( maxi.begin(), maxi.end() );
+						cardRank[ i ] += maxi[ 3 ] * 13 + maxi[ 2 ];
 						continue;
 					}
 
 					// Two pair
 					if ( n2s > 1 ) {
 						handRank[ i ] = 7;
-						cardRank[ i ] = *std::max_element( rank2s.begin(), rank2s.end() );
+						cardRank[ i ] = ( *std::max_element( rank2s.begin(), rank2s.end() ) ) * 13 * 13 + ( *std::min_element( rank2s.begin(), rank2s.end() ) ) * 13;
+						int max = -1;
+						for ( int l = 0; l < 5; l++ ) {
+							if ( river[ l ] % 13 != rank2s[ 0 ] && river[ l ] % 13 != rank2s[ 1 ] && river[ l ] % 13 > max )
+								max = river[ l ] % 13;
+						}
+
+						cardRank[ i ] += max;
+
 						continue;
 					}
 
 					// Pair
 					if ( n2s == 1 ) {
 						handRank[ i ] = 8;
-						int oMax = 0;
+						cardRank[ i ] = rank2s[ 0 ] * 13 * 13 * 13;
+						std::vector<int> maxi;
 						for ( int l = 0; l < 7; l++ ) {
 							if ( hand[ l ] % 13 != rank2s[ 0 ] ) {
-								if ( hand[ l ] % 13 > oMax )
-									oMax = hand[ l ] % 13;
+								maxi.push_back( hand[ l ] % 13 );
 							}
 						}
-						cardRank[ i ] = rank2s[ 0 ] * 13 + oMax;
+						std::sort( maxi.begin(), maxi.end() );
+						cardRank[ i ] += maxi[ 4 ] * 13 * 13 + maxi[ 3 ] * 13 + maxi[ 2 ];
 						continue;
 					}
 
 					handRank[ i ] = 9;
-					int oMax = 0;
-					for ( int l = 0; l < 7; l++ ) {
-						if ( hand[ l ] % 13 > oMax )
-							oMax = hand[ l ] % 13;
-					}
-					cardRank[ i ] = oMax;
+					cardRank[ i ] = aHand[ 6 ] * 13 * 13 * 13 * 13 + aHand[ 5 ] * 13 * 13 * 13 + aHand[ 4 ] * 13 * 13 + aHand[ 3 ] * 13 + aHand[ 2 ];
 
 				}
 
@@ -329,41 +456,57 @@ int main() {
 				int maxBugger = 0;
 				int minPlayer = NULL;
 				bool tie = false;
+				int tiers = 1;
 				std::vector<bool> ties = std::vector<bool>( players );
 				for ( int i = 0; i < players; i++ ) {
-					std::cout << "Player " << i << " got a hand of rank " << handRank[ i ] << std::endl;
+					if ( folded[ i ] ) {
+						std::cout << "Player " << i << " folded" << std::endl;
+						continue;
+					}
+					std::cout << "Player " << i << " got a hand of rank " << handRank[ i ] << " with a card of rank " << cardRank[ i ] << std::endl;
 					if ( handRank[ i ] < minScore ) {
 						minScore = handRank[ i ];
 						maxBugger = cardRank[ i ];
 						minPlayer = i;
-					}
-
-					if ( handRank[ i ] == minScore ) {
+					} else if ( handRank[ i ] == minScore ) {
 						if ( cardRank[ i ] > maxBugger ) {
+							tie = false;
 							minPlayer = i;
 							maxBugger = cardRank[ i ];
 						}
-						if ( cardRank[ i ] == maxBugger ) {
+						else if ( cardRank[ i ] == maxBugger ) {
 							tie = true;
 							ties[ minPlayer ] = true;
 							ties[ i ] = true;
+							tiers++;
 						}
 					}
+				}
+
+				int pot = 0;
+				for ( int i = 0; i < players; i++ ) {
+					pot += bets[ i ];
 				}
 
 				if ( tie ) {
 					std::cout << "Tie" << std::endl;
+					game.SetState( "tie", statewise( tie ) );
 					for ( auto tier : ties ) {
-						std::cout << "Player " << tier << "tied" << std::endl;
-						game.SetState( "tie", statewise( tie ) );
+						if ( tier ) {
+							std::cout << "Player " << tier << " tied" << std::endl;
+							money[ tier ] += pot / tiers;
+						}
 					}
 				} else {
 					std::cout << "Player " << minPlayer << " won with a hand of rank " << handRank[ minPlayer ] << std::endl;
 					game.SetState( "winner", statewise( minPlayer ) );
+					money[ minPlayer ] += pot;
 				}
-
-				//if ( ( int )  *(  game.GetState( "confirmed" ) ) )
-				//	phase = 0;
+				phase++;
+			}
+			case 5: {
+				if ( ( int ) ( * game.GetState( "confirmed" ) ) )
+					phase = 0;
 
 				break;
 			}
@@ -373,6 +516,7 @@ int main() {
 		}
 
 		game.SetState( "phase", statewise( phase ) );
+		game.SetState( "aow", statewise( aow ) );
 
 		bool connected = true;
 		for ( int i = 0; i < players; i++ ) {

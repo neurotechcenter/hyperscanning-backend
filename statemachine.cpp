@@ -24,11 +24,9 @@ void StateMachine::Interpret( const char* buffer, StateMachine* tracker = nullpt
 		std::string value( buffer, size );
 		buffer += value.size();
 
-		std::cout << "Setting State: " << name << ": " << ( int )*value.c_str() << std::endl;
 
 		//, readonly );
 		if ( !SetState( name, value ) && tracker ){
-			std::cout << "Updating tracker from: " << ( int ) *tracker->GetState( name ) << " to: " << ( int ) *value.c_str() << std::endl;
 			tracker->SetState( name, value );
 		}
 	}
@@ -43,7 +41,7 @@ std::string StateMachine::GetMessage() {
 		out += StateValues[ i ].size();
 		out += StateValues[ i ];
 
-		std::cout << StateNames[ i ] << ", " << 0 << ", " << StateValues[ i ].size() << ", " << ( int ) StateValues[ i ][ 0 ] << std::endl;
+		//std::cout << StateNames[ i ] << ", " << 0 << ", " << StateValues[ i ].size() << ", " << ( int ) StateValues[ i ][ 0 ] << std::endl;
 	}
 	return out;
 }

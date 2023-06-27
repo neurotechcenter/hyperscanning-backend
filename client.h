@@ -27,7 +27,6 @@ class Client {
 	sockaddr_in sockaddr;
 
 
-	std::vector<int> connections;
 	int max_fd;
 	fd_set readfds;
 

@@ -87,6 +87,7 @@ StateMachine Game::Loop() {
 		if ( !Update() )
 			return masterStates;
 	}
+	port.Close();
 }
 
 bool Game::ReadClients() {
