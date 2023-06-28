@@ -28,3 +28,6 @@ edit_states: $(OBJ)
 
 poker: $(OBJ)
 	$(CC) examples/poker.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o poker
+
+app1P: $(OBJ)
+	$(CC) app1p.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o app1P

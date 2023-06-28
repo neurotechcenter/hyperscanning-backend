@@ -48,8 +48,10 @@ bool Client::SendStates( StateMachine otherStates ) {
 	std::string message = otherStates.GetMessage();
 	if ( message.size() == 0 ) return true;
 	size_t size = message.size() + 1;
+	char* csize = ( char* ) &size;
+	message = std::string( csize, sizeof( size_t ) ) + message;
 	std::cout << "Size: " << message.size() << std::endl;
-	if ( send( connection, &size, sizeof( size_t ), MSG_NOSIGNAL ) < 0 || send( connection, message.c_str(), size, MSG_NOSIGNAL ) < 0 ) {
+	if ( send( connection, message.c_str(), size + sizeof( size_t ), MSG_NOSIGNAL ) < 0 ) {
 		std::cout << "Error writing to socket: " << errno << std::endl;
 		return false;
 	}

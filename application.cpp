@@ -84,6 +84,8 @@ int main() {
 
 	params.contents.push_back( 0 );
 
+	std::cout << "Size: " << params.contents.size();
+
 	if ( clientparms.contents.size() <= 0 )
 		std::cout << "Could not find existing parameters" << std::endl;
 
