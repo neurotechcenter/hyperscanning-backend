@@ -41,7 +41,15 @@ Client* Port::WaitForClient() {
 		std::cout << "Failed to grab connection" << std::endl; 
 	} else {
 		std::cout << "Connected to " << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << std::endl;
-		Client* client = new Client( connection, timeout, inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ) );
+		char* buffer = ( char* )malloc( 32 * sizeof( char ) );
+		if ( read( connection, buffer, 32 ) <= 0 ) {
+			std::cout << "Error when reading Client ID: " << errno << std::endl;
+		}
+		std::string id = std::string( buffer );
+		if ( id.size() == 0 )
+			id = inet_ntoa( sockaddr.sin_addr );
+		std::cout << "Client ID: " << id << std::endl;
+		Client* client = new Client( connection, inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), id );
 		connections.push_back( client );
 		return client;
 	}

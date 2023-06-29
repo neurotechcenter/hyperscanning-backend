@@ -31,9 +31,9 @@ int main() {
 
 	std::cout << "Loading existing params" << std::endl;
 	bool swaped = false;
-	Params clientparms = Params( client1->ip_address + "-" + client2->ip_address + ".prm" );
+	Params clientparms = Params( client1->id + "-" + client2->id + ".prm" );
 	if ( clientparms.contents.size() <= 0 ) {
-		clientparms = Params( client2->ip_address + "-" + client1->ip_address + ".prm" );
+		clientparms = Params( client2->id + "-" + client1->id + ".prm" );
 		if ( clientparms.contents.size() ) swaped = true;
 		
 	}
@@ -123,11 +123,11 @@ int main() {
 	outparams.AddParam( "Application", "int", "InitialTrialNumber", std::to_string( ( int )*InitialTrialNumber.c_str() - 1 ) );
 	outparams.AddParam( stimuliSequence );
 	if ( !swaped ) {
-		std::ofstream egof( client1->ip_address + "-" + client2->ip_address + ".prm" );
+		std::ofstream egof( client1->id + "-" + client2->id + ".prm" );
 		egof << outparams.contents << std::endl;
 	}
 	else {
-		std::ofstream egof( client2->ip_address + "-" + client1->ip_address + ".prm" );
+		std::ofstream egof( client2->id + "-" + client1->id + ".prm" );
 		egof << outparams.contents << std::endl;
 	}
 

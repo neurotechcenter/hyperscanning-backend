@@ -6,13 +6,15 @@ class Client {
 	#define MSG_NOSIGNAL 0
 	
 	public:
-	Client( int, int, std::string, int );
+	Client( int, std::string, int, std::string );
 
 	bool GetUpdatedStates();
 	bool SendStates( StateMachine );
 
 	std::string ip_address;
 	int port;
+
+	std::string id;
 
 	int connection;
 	char ClientNumber;
@@ -23,7 +25,6 @@ class Client {
 	bool Matches( Client* o );
 
 	private:
-	int timeout;
 	sockaddr_in sockaddr;
 
 

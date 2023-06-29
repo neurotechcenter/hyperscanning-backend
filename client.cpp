@@ -7,10 +7,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-Client::Client( int sock, int to, std::string ip, int p ) {
+Client::Client( int sock, std::string ip, int p, std::string d ) {
 	connection = sock;
-	timeout = to;
 	ip_address = ip;
+	id = d;
 	port = p;
 	states = new StateMachine();
 	stateChanges = new StateMachine();
