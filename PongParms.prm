@@ -1,0 +1,4 @@
+Application:Pong int PaddleHeight= 200 // Height of the paddle
+Application:Pong int BallSize= 5 // Size of the ball
+Application:Pong int BallSpeed= 10 // Speed of the ball
+Application:Pong int MaxAngle= 70 // Maximum angle of the ball when bouncing off of paddles

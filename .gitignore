@@ -1,5 +1,9 @@
+*
+!*.*
 *.swp
 *.o
 application
 *.prm
 vgcore*
+*.DSYM
+!PongParms.prm

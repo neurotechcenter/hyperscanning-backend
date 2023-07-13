@@ -30,4 +30,7 @@ poker: $(OBJ)
 	$(CC) examples/poker.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o poker
 
 app1P: $(OBJ)
-	$(CC) app1p.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o app1P
+	$(CC) examples/app1p.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o app1P
+
+pong: $(OBJ)
+	$(CC) examples/pong.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o pong
