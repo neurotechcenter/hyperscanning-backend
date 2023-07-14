@@ -1,5 +1,3 @@
-*
-!*.*
 *.swp
 *.o
 application
@@ -7,3 +5,4 @@ application
 vgcore*
 *.DSYM
 !PongParms.prm
+!TicTacToe.prm

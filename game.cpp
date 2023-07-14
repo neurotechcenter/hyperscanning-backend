@@ -131,13 +131,17 @@ bool Game::SendToClient( Client* client ) {
 bool Game::Update() {
 	StateMachine* tracker = new StateMachine();
 
+
 	if ( !ReadClients() )
 		return false;
 
+	auto begin = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now().time_since_epoch() ).count();
 	Reconcile();
 
 	if ( !SendToClients() )
 		return false;
+
+	auto end = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now().time_since_epoch() ).count();
 
 	return true;
 

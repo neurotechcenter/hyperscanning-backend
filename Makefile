@@ -34,3 +34,6 @@ app1P: $(OBJ)
 
 pong: $(OBJ)
 	$(CC) examples/pong.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o pong
+
+tictactoe: $(OBJ)
+	$(CC) examples/tictactoe.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o tictactoe

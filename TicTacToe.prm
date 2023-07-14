@@ -1,0 +1,2 @@
+Application:Application%20Window string WindowBackgroundColor= 0xFFFFFF % % % // Color of background
+Application:Application%20Window int WindowHideCursor= 0 % % % // Hide cursor
