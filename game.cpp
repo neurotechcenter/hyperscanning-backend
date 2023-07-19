@@ -124,6 +124,8 @@ bool Game::SendToClient( Client* client ) {
 		client->stateChanges = new StateMachine();
 		client->states->Interpret( tracker->GetMessage().c_str(), client->stateChanges );
 		std::string message = client->stateChanges->GetMessage();
+		if ( message.size() ) 
+			std::cout << "Sending: " << message << std::endl;
 		if ( !client->SendStates( *client->stateChanges ) ) return false;
 		return true;
 }

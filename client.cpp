@@ -6,6 +6,7 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <cstring>
 
 Client::Client( int sock, std::string ip, int p, std::string d ) {
 	connection = sock;
@@ -25,8 +26,10 @@ bool Client::GetUpdatedStates() {
 	FD_SET( connection, &readfds );
 
 	if ( select( connection + 1, &readfds, NULL, NULL, &time ) > 0 ) {
-		char* buffer = ( char* ) malloc( bufferSize * sizeof( char ) );
-		size_t result = read( connection, buffer, bufferSize );
+		size_t size = 0;
+		char* buffer = ( char* ) malloc( sizeof( size_t ) );
+		size_t result = read( connection, buffer, sizeof( size_t ) );
+
 		if ( result == 0 ) {
 			std::cout << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << " disconnected" << std::endl;
 			close( connection );
@@ -35,7 +38,16 @@ bool Client::GetUpdatedStates() {
 		} else if ( result < 0 ) {
 			std::cout << "Error reading socket: " << errno << std::endl;
 		} else {
-			std::cout << "Reading socket" << std::endl;
+			memcpy( &size, buffer, sizeof( size_t ) );
+			free( buffer );
+			
+			std::cout << "Size: " << size << std::endl;
+
+			buffer = ( char* ) malloc( size );
+			read( connection, buffer, size );
+
+			std::cout << "Client Buffer: " << buffer << std::endl;
+
 			states->Interpret( buffer, stateChanges );
 		}
 		free( buffer );
