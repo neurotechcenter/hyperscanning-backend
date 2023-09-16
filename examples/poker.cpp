@@ -5,6 +5,7 @@
 #include "statemachine.h"
 #include "params.h"
 
+#include <algorithm>
 #include <iostream>
 #include <random>
 #include <vector>
