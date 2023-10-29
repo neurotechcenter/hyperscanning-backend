@@ -15,20 +15,6 @@
 
 int main() {
 
-	StateMachine* bob = new StateMachine();
-	bob->SetState( "Name", "Bob" );
-	StateMachine* tracker = new StateMachine();
-	std::string b = "Nombre";
-	b.push_back( 0 );
-	b.push_back( 3 );
-	b += "Bob";
-	bob->Interpret( b.c_str(), tracker );
-	std::cout << "Name: " << bob->GetState( "Name" ) << std::endl;
-	std::cout << "Nombre: " << bob->GetState( "Nombre" ) << std::endl;
-	std::cout << "Nombre: " << tracker->GetState( "Nombre" ) << std::endl;
-	delete tracker;
-	delete bob;
-
 	// Load Parameter File
 	Params params = Params( "HyperscanningParameters.prm" );
 
