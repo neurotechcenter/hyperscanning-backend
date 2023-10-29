@@ -10,9 +10,24 @@
 #include <algorithm>
 #include <random>
 #include <fstream>
+#include <cstdio>
 #include "params.h"
 
 int main() {
+
+	StateMachine* bob = new StateMachine();
+	bob->SetState( "Name", "Bob" );
+	StateMachine* tracker = new StateMachine();
+	std::string b = "Nombre";
+	b.push_back( 0 );
+	b.push_back( 3 );
+	b += "Bob";
+	bob->Interpret( b.c_str(), tracker );
+	std::cout << "Name: " << bob->GetState( "Name" ) << std::endl;
+	std::cout << "Nombre: " << bob->GetState( "Nombre" ) << std::endl;
+	std::cout << "Nombre: " << tracker->GetState( "Nombre" ) << std::endl;
+	delete tracker;
+	delete bob;
 
 	// Load Parameter File
 	Params params = Params( "HyperscanningParameters.prm" );
@@ -29,22 +44,54 @@ int main() {
 	std::cout << "Waiting for second client" << std::endl;
 	Client* client2 = port.WaitForClient();
 
-	std::cout << "Loading existing params" << std::endl;
-	bool swaped = false;
-	Params clientparms = Params( client1->id + "-" + client2->id + ".prm" );
-	if ( clientparms.contents.size() <= 0 ) {
-		clientparms = Params( client2->id + "-" + client1->id + ".prm" );
-		if ( clientparms.contents.size() ) swaped = true;
-		
+	// Hyperscanning Application Base Compatible Version
+	std::string version = "1.0";
+
+	// Check that versions are compatible
+	if ( client1->version != client2->version ) {
+		std::cout << "Client Versions Do Not Match" << std::endl;
+		std::cout << "Client 1 Version: " << client1->version << std::endl;
+		std::cout << "Client 2 Version: " << client2->version << std::endl;
+		std::cout << "Please use clients with matching versions to ensure bug free usage" << std::endl;
+		return -1;
 	}
 
+	if ( client1->version != version ) {
+		std::cout << "Client versions are incompatible with this version of the backend" << std::endl;
+		std::cout << "Client Version: " << client1->version << std::endl;
+		std::cout << "Backend Version: " << version << std::endl;
+		std::cout << "Please use clients and backend with compatible versions to ensure bug free usage" << std::endl;
+		return -1;
+	}
+
+	if ( client1->sid != client2->sid ) {
+		std::cout << "Client Session IDs do not match" << std::endl;
+		std::cout << "Client 1 sID: " << client1->sid << std::endl;
+		std::cout << "Client 2 sID: " << client2->sid << std::endl;
+		std::cout << "Please use matching session IDs" << std::endl;
+		return -1;
+	}
+
+	std::cout << "Loading existing params" << std::endl;
+	//bool swaped = false;
+	//Params clientparms = Params( client1->id + "-" + client2->id + ".prm" );
+	//if ( clientparms.contents.size() <= 0 ) {
+	//	clientparms = Params( client2->id + "-" + client1->id + ".prm" );
+	//	if ( clientparms.contents.size() ) swaped = true;
+	//	
+	//}
+
+	Params clientparms = Params( client1->sid );
+
 	std::string stimuliSequence;
+	int trials;
 
 	if ( clientparms.contents.size() > 0 ) {
 		std::cout << "Found existing game" << std::endl;
 		params.contents += clientparms.contents;
 
 		stimuliSequence = clientparms.GetParam( "StimuliSequence" )->line;
+		trials = clientparms.GetParam( "StimuliSequence" )->length;
 	}
 	else {
 		// Generate Random Sequence
@@ -59,6 +106,7 @@ int main() {
 			order[ i ] = i;
 
 		std::cout << "Width: " << stimmat->width << std::endl;
+		trials = stimmat->width;
 
 		std::random_device rd;
 		auto rng = std::default_random_engine( rd() );
@@ -94,7 +142,10 @@ int main() {
 	Game game = Game( port, params.contents );
 
 	// Connect first client
-	if ( !swaped ) {
+	std::ifstream indatfile( client1->sid + ".dat" );
+	std::string firstclient;
+	indatfile >> firstclient;
+	if ( firstclient == client1->id ) {
 		game.Connect( client1 );
 		std::cout << "Connected to first client" << std::endl;
 		game.Connect( client2 );
@@ -119,16 +170,31 @@ int main() {
 	if ( InitialTrialNumber.size() == 0 ) InitialTrialNumber = "\1";
 	std::cout << "Saving Trial Number: " << ( int ) *InitialTrialNumber.c_str() - 1 << std::endl;
 
-	Params outparams = Params();
-	outparams.AddParam( "Application", "int", "InitialTrialNumber", std::to_string( ( int )*InitialTrialNumber.c_str() - 1 ) );
-	outparams.AddParam( stimuliSequence );
-	if ( !swaped ) {
-		std::ofstream egof( client1->id + "-" + client2->id + ".prm" );
+	if ( ( int ) *InitialTrialNumber.c_str() < trials ) {
+
+		Params outparams = Params();
+		outparams.AddParam( "Application", "int", "InitialTrialNumber", std::to_string( ( int )*InitialTrialNumber.c_str() - 1 ) );
+		outparams.AddParam( stimuliSequence );
+		//if ( !swaped ) {
+		//	std::ofstream egof( client1->id + "-" + client2->id + ".prm" );
+		//	egof << outparams.contents << std::endl;
+		//}
+		//else {
+		//	std::ofstream egof( client2->id + "-" + client1->id + ".prm" );
+		//	egof << outparams.contents << std::endl;
+		//}
+		std::ofstream egof( client1->sid + ".prm" );
 		egof << outparams.contents << std::endl;
-	}
-	else {
-		std::ofstream egof( client2->id + "-" + client1->id + ".prm" );
-		egof << outparams.contents << std::endl;
+		egof.close();
+
+		std::ofstream datfile( client1->sid + ".dat" );
+		datfile << client1->sid << std::endl;
+		datfile << client2->sid << std::endl;
+		datfile.close();
+	} else {
+		std::cout << "Trials finished, so not saving game" << std::endl;
+		std::remove( ( client1->sid + ".prm" ).c_str() );
+		std::remove( ( client1->sid + ".dat" ).c_str() );
 	}
 
 

@@ -6,7 +6,7 @@ class Client {
 	#define MSG_NOSIGNAL 0
 	
 	public:
-	Client( int, std::string, int, std::string );
+	Client( int, std::string, int, std::string, std::string, std::string );
 
 	bool GetUpdatedStates();
 	bool SendStates( StateMachine );
@@ -14,7 +14,9 @@ class Client {
 	std::string ip_address;
 	int port;
 
+	std::string version;
 	std::string id;
+	std::string sid;
 
 	int connection;
 	char ClientNumber;

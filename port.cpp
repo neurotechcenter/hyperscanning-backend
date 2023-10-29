@@ -41,15 +41,47 @@ Client* Port::WaitForClient() {
 		std::cout << "Failed to grab connection" << std::endl; 
 	} else {
 		std::cout << "Connected to " << inet_ntoa( sockaddr.sin_addr ) << ":" << ntohs( sockaddr.sin_port ) << std::endl;
-		char* buffer = ( char* )malloc( 32 * sizeof( char ) );
-		if ( read( connection, buffer, 32 ) <= 0 ) {
+
+		// Version
+		size_t sbuffer;
+		if ( read( connection, &sbuffer, sizeof( size_t ) ) <= 0 )
+			std::cout << "error: " << errno << std::endl;
+		char* buffer = ( char* )malloc( sbuffer );
+		if ( read( connection, buffer, sbuffer ) <= 0 ) {
 			std::cout << "Error when reading Client ID: " << errno << std::endl;
 		}
-		std::string id = std::string( buffer );
-		if ( id.size() == 0 )
+		std::string version = std::string( buffer, sbuffer );
+		free( buffer );
+
+		// Client ID
+		std::string id;
+		if ( read( connection, &sbuffer, sizeof( size_t ) ) <= 0 )
+			std::cout << "error: " << errno << std::endl;
+		if ( sbuffer ) {
+			buffer = ( char* )malloc( sbuffer );
+			if ( read( connection, buffer, sbuffer ) <= 0 ) {
+				std::cout << "Error when reading Client ID: " << errno << std::endl;
+			}
+			id = std::string( buffer, sbuffer );
+		} else {
 			id = inet_ntoa( sockaddr.sin_addr );
+		}
+
+
+		// Session ID
+		if ( read( connection, &sbuffer, sizeof( size_t ) ) <= 0 )
+			std::cout << "error: " << errno << std::endl;
+		buffer = ( char* )malloc( sbuffer );
+		if ( read( connection, buffer, sbuffer ) <= 0 ) {
+			std::cout << "Error when reading Client ID: " << errno << std::endl;
+		}
+		std::string sid = std::string( buffer, sbuffer );
+
+		std::cout << "Client Version: " << version << std::endl;
 		std::cout << "Client ID: " << id << std::endl;
-		Client* client = new Client( connection, inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), id );
+		std::cout << "Session ID: " << sid << std::endl;
+
+		Client* client = new Client( connection, inet_ntoa( sockaddr.sin_addr ), ntohs( sockaddr.sin_port ), version, id, sid );
 		connections.push_back( client );
 		return client;
 	}

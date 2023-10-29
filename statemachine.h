@@ -8,7 +8,6 @@
 class StateMachine {
 	public:
 	StateMachine();
-	~StateMachine();
 
 	const char* GetState( std::string );
 	bool SetState( std::string, std::string );

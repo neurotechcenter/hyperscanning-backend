@@ -57,6 +57,8 @@ void Game::ValidateStates( Client* client ) {
 	std::cout << "Sending client validation result." << std::endl;
 	send( client->connection, &m, 1, 0 );
 	std::cout << "Sent validation result" << std::endl;
+
+	free( mBuffer );
 }
 
 bool Game::Connect( Client* client ) {
@@ -131,8 +133,6 @@ bool Game::SendToClient( Client* client ) {
 }
 
 bool Game::Update() {
-	StateMachine* tracker = new StateMachine();
-
 
 	if ( !ReadClients() )
 		return false;

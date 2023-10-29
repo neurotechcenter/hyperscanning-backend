@@ -13,6 +13,7 @@ void StateMachine::Interpret( const char* buffer, StateMachine* tracker = nullpt
 	while ( *buffer != '\0' ) {
 		//std::cout << "Getting state name" << std::endl;
 		std::string name( buffer );
+		std::cout << "Name: " << name << std::endl << std::endl;
 		//bool readonly = false;
 		buffer += name.size() + 1;
 		//if ( name[ 0 ] == 0 ) {
@@ -20,8 +21,10 @@ void StateMachine::Interpret( const char* buffer, StateMachine* tracker = nullpt
 		//	name.erase( name.begin() );
 		//}
 		char size = *buffer++;
+		std::cout << "Size: " << size << std::endl;
 		//std::cout << "Interpreting value" << std::endl;
 		std::string value( buffer, size );
+		std::cout << "Value: " << value << std::endl;
 		buffer += value.size();
 
 
@@ -92,7 +95,3 @@ std::string& StateMachine::LocateState( std::string name ) {
 const char* StateMachine::GetState( std::string name ) {
 	return LocateState( name ).c_str();
 }
-
-StateMachine::~StateMachine() {
-}
-
