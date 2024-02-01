@@ -58,6 +58,11 @@ int main() {
 		return -1;
 	}
 
+	if ( client1->sid.size() == 0 && client2->sid.size() == 0 ) {
+		std::cout << "Session ID not provided by clients" << std::endl;
+		return -1;
+	}
+
 	std::cout << "Loading existing params" << std::endl;
 	//bool swaped = false;
 	//Params clientparms = Params( client1->id + "-" + client2->id + ".prm" );
@@ -67,6 +72,7 @@ int main() {
 	//	
 	//}
 
+	std::cout << "Client1 SID: " << client1->sid << std::endl;
 	Params clientparms = Params( client1->sid + ".prm" );
 
 	std::string stimuliSequence;
