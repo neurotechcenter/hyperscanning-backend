@@ -67,7 +67,7 @@ int main() {
 	//	
 	//}
 
-	Params clientparms = Params( client1->sid );
+	Params clientparms = Params( client1->sid + ".prm" );
 
 	std::string stimuliSequence;
 	int trials;
@@ -133,14 +133,19 @@ int main() {
 	indatfile >> firstclient;
 	if ( firstclient == client1->id ) {
 		game.Connect( client1 );
-		std::cout << "Connected to first client" << std::endl;
+		std::cout << "Connected to first client: " << client1->id << std::endl;
 		game.Connect( client2 );
-		std::cout << "Connected to second client" << std::endl;
+		std::cout << "Connected to second client: " << client2->id  << std::endl;
 	} else {
 		game.Connect( client2 );
-		std::cout << "Connected to first client" << std::endl;
+		std::cout << "Connected to first client: " << client2->id << std::endl;
 		game.Connect( client1 );
-		std::cout << "Connected to second client" << std::endl;
+		std::cout << "Connected to second client: " << client1->id  << std::endl;
+
+		//Swap Clients
+		auto c = client2;
+		client2 = client1;
+		client1 = c;
 	}
 
 
@@ -174,8 +179,8 @@ int main() {
 		egof.close();
 
 		std::ofstream datfile( client1->sid + ".dat" );
-		datfile << client1->sid << std::endl;
-		datfile << client2->sid << std::endl;
+		datfile << client1->id << std::endl;
+		datfile << client2->id << std::endl;
 		datfile.close();
 	} else {
 		std::cout << "Trials finished, so not saving game" << std::endl;
