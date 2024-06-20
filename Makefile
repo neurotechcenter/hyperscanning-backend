@@ -8,7 +8,7 @@ OBJ = port.o client.o statemachine.o game.o params.o
 %.o : %.cpp
 	$(CC) -c $(LIBS) $(LIBDIRS) $(INC) $< -o $@
 
-all: application base_application modify_params save_trial edit_states poker
+all: application base_application modify_params save_trial edit_states poker guiltTaskServer
 
 
 application: $(OBJ)
@@ -37,3 +37,6 @@ pong: $(OBJ)
 
 tictactoe: $(OBJ)
 	$(CC) examples/tictactoe.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o tictactoe
+
+guiltTaskServer: $(OBJ)
+	$(CC) guiltTaskServer.cpp -I. $(OBJ) $(LIBS) $(LIBDIRS) $(INC) -g -o guiltTaskServer
