@@ -12,6 +12,21 @@
 #include <fstream>
 #include <cstdio>
 #include "params.h"
+#include <vector>
+#include <sstream>
+#include <string>
+
+std::vector<std::string> split(const std::string &s, char delimiter) {
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(s);
+    
+    while (std::getline(tokenStream, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    
+    return tokens;
+}
 
 int main() {
 
@@ -84,6 +99,7 @@ int main() {
 
 		TrialSequence = clientparms.GetParam( "TrialSequence" )->line;
 		trials = clientparms.GetParam( "TrialSequence" )->length;
+		std::cout << "trials(trial number): " << trials << std::endl;
 	}
 	else {
 		// Generate Random Sequence
@@ -99,13 +115,35 @@ int main() {
 
 		Param* trialsq = params.GetParam( "TrialSequence" + std::to_string(trial_type_random));
 		std::cout << "Got trail sequence" << std::endl;
+		std::cout << "trial sequence name : " << trialsq->name << std::endl;
+		std::cout << "trial sequence line : " << trialsq->line << std::endl;
 
-		std::vector<int> order = std::vector<int>( trialsq->width );
-		for ( int i = 0; i < trialsq->width; i++ )
-			order[ i ] = i;
+		std::string my_target = trialsq->name + "=";
+		size_t my_begin = trialsq->line.find(my_target);
+		my_begin += my_target.length() + 1;
+		std::string subs = trialsq->line.substr(my_begin);
 
-		std::cout << "Width: " << trialsq->width << std::endl;
-		trials = trialsq->width;
+		//split by space
+		char my_space = ' ';
+		std::vector<std::string> segments = split(subs, my_space);
+		if(segments.size() == 0){
+			std::cout << trialsq->name + " is empty" << std::endl;
+		}
+
+		int my_number = std::stoi(segments[0]);
+		std::vector<int> order;
+
+		for (size_t i = 1; i < my_number + 1 && i < segments.size(); i++) {
+			order.push_back(std::stoi(segments[i]));
+    	}
+
+		std::cout << "New " + trialsq->name + " is below and "  << "Size:  "  << order.size() << std::endl; 
+    	for(int ele : order){       
+        	std::cout << ele << std :: endl;
+    	}
+
+		std::cout << "trials(trial number): " << my_number << std::endl;
+		trials = my_number;
 
 		// std::random_device rd;
 		// auto rng = std::default_random_engine( rd() );
@@ -114,9 +152,9 @@ int main() {
 		std::cout << "First: " << order[ 0 ] << std::endl;
 
 		TrialSequence = "\nApplication:Experiment intlist TrialSequence= ";
-		TrialSequence += std::to_string( trialsq->width );
+		TrialSequence += std::to_string( order.size() );
 		TrialSequence += " ";
-		for ( int i = 0; i < trialsq->width; i++ ) {
+		for ( int i = 0; i < order.size(); i++ ) {
 			TrialSequence += std::to_string( order[ i ] );
 			TrialSequence += " ";
 		}
