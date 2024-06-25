@@ -91,6 +91,7 @@ int main() {
 	Params clientparms = Params( client1->sid + ".prm" );
 
 	std::string TrialSequence;
+	std::string fixationDur;
 	int trials;
 
 	if ( clientparms.contents.size() > 0 ) {
@@ -98,6 +99,7 @@ int main() {
 		params.contents += clientparms.contents;
 
 		TrialSequence = clientparms.GetParam( "TrialSequence" )->line;
+		fixationDur = clientparms.GetParam( "FixationDuration" )->line;
 		trials = clientparms.GetParam( "TrialSequence" )->length;
 		std::cout << "trials(trial number): " << trials << std::endl;
 	}
@@ -139,8 +141,9 @@ int main() {
 
 		std::cout << "New " + trialsq->name + " is below and "  << "Size:  "  << order.size() << std::endl; 
     	for(int ele : order){       
-        	std::cout << ele << std :: endl;
+        	std::cout << ele << " ";
     	}
+		std::cout << std::endl;
 
 		std::cout << "trials(trial number): " << my_number << std::endl;
 		trials = my_number;
@@ -165,6 +168,66 @@ int main() {
 		params.AddParam( TrialSequence );
 
 		params.AddParam( "Application int InitialTrialNumber= 0 % % % // trial number" );
+
+		//generate fixation duration
+		Param* fixationMax = params.GetParam( "FixationDurationMax");
+		Param* fixationMin = params.GetParam( "FixationDurationMin");
+		std::cout << "Got fixation duration max and min" << std::endl;
+		std::cout << "FixationDurationMax name : " << fixationMax->name << std::endl;
+		std::cout << "FixationDurationMin name : " << fixationMin->name << std::endl;
+		std::cout << "FixationDurationMax line : " << fixationMax->line << std::endl;
+		std::cout << "FixationDurationMin line : " << fixationMin->line << std::endl;
+
+		//get the fixation duration max
+		std::string temp_fix_max = fixationMax->name + "=";
+		size_t begin_fix_max = fixationMax->line.find(temp_fix_max);
+		begin_fix_max += temp_fix_max.length() + 1;
+		std::string subs_fix_max = fixationMax->line.substr(begin_fix_max);
+
+		//split by space
+		std::vector<std::string> segments_fix_max = split(subs_fix_max, my_space);
+		if(segments_fix_max.size() == 0){
+			std::cout << fixationMax->name + " is empty" << std::endl;
+		}
+
+		int fixation_max_value= std::stoi(segments_fix_max[0]);
+
+		std::cout << "New " + fixationMax->name + " is : "<< fixation_max_value <<std::endl; 
+
+		//get the fixation duration min
+		std::string temp_fix_min = fixationMin->name + "=";
+		size_t begin_fix_min = fixationMin->line.find(temp_fix_min);
+		begin_fix_min += temp_fix_min.length() + 1;
+		std::string subs_fix_min = fixationMin->line.substr(begin_fix_min);
+
+		//split by space
+		std::vector<std::string> segments_fix_min = split(subs_fix_min, my_space);
+		if(segments_fix_min.size() == 0){
+			std::cout << fixationMin->name + " is empty" << std::endl;
+		}
+
+		int fixation_min_value= std::stoi(segments_fix_min[0]);
+
+		std::cout << "New " + fixationMin->name + " is : "<< fixation_min_value <<std::endl; 
+
+		//randomly generate the fixation duration
+        // std::random_device rd;
+        // std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib_fix(fixation_min_value, fixation_max_value);
+        int fix_dur_val = distrib_fix(gen);
+        std::cout << "Fixation duration is " << fix_dur_val << std::endl;	
+
+		fixationDur = "\nApplication:Experiment float FixationDuration= ";
+		fixationDur += std::to_string( fix_dur_val ) + "ms " + std::to_string( fix_dur_val ) + "ms";
+		fixationDur += " 0 % ";
+		fixationDur += "//Fixation duration.";
+
+		std::cout << fixationDur << std::endl;
+
+		params.AddParam( fixationDur );
+
+		std::string my_seeds = "System:Randomization int RandomSeed= 55 0 % % // seed for the BCI2000 pseudo random number generator (readonly)";
+		params.AddParam(my_seeds);
 	}
 
 	params.contents.push_back( 0 );
@@ -217,6 +280,7 @@ int main() {
 		Params outparams = Params();
 		outparams.AddParam( "Application", "int", "InitialTrialNumber", std::to_string( ( int )*InitialTrialNumber.c_str() - 1 ) );
 		outparams.AddParam( TrialSequence );
+		outparams.AddParam(fixationDur);
 		//if ( !swaped ) {
 		//	std::ofstream egof( client1->id + "-" + client2->id + ".prm" );
 		//	egof << outparams.contents << std::endl;
